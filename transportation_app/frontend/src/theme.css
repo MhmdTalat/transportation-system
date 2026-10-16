@@ -1,0 +1,2135 @@
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--color-background);
+}
+
+::selection {
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+}
+
+.app-shell,
+.workspace,
+.page-content,
+.passenger-page,
+.driver-page,
+.resource-page,
+.dashboard-page,
+.tracking-page {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+.sidebar {
+  border-right: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sidebar);
+}
+
+.brand {
+  color: var(--color-text-primary);
+}
+
+.brand-mark {
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+  box-shadow: none;
+}
+
+.brand-copy strong,
+.sidebar-help strong,
+.user-chip strong,
+.breadcrumbs strong {
+  color: var(--color-text-primary);
+}
+
+.brand-copy small,
+.nav-caption,
+.sidebar-help small,
+.sidebar-meta {
+  color: var(--color-text-muted);
+}
+
+.sidebar-divider,
+.sidebar-help,
+.user-chip,
+.topbar {
+  border-color: var(--color-border);
+}
+
+.sidebar-divider {
+  background: var(--color-divider);
+}
+
+.nav-link-item,
+.signout-link {
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-button);
+  transition: color var(--transition-ui), background var(--transition-ui);
+}
+
+.nav-link-item > i {
+  color: var(--color-muted-blue);
+  font-size: var(--icon-size-default);
+}
+
+.nav-link-item:hover,
+.signout-link:hover {
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.nav-link-item.active {
+  color: var(--color-accent-pressed);
+  background: var(--color-accent-tint);
+  box-shadow: inset 3px 0 var(--color-accent);
+}
+
+.nav-link-item.active > i,
+.sidebar-help > a:hover {
+  color: var(--color-accent);
+}
+
+.sidebar-help {
+  border-radius: var(--radius-card);
+  background: var(--color-surface-elevated);
+}
+
+.help-icon,
+.metric-blue,
+.metric-teal,
+.metric-violet,
+.metric-amber,
+.metric-green,
+.snapshot-icon,
+.empty-icon {
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.workspace {
+  background: var(--color-background);
+}
+
+.topbar {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(12px);
+}
+
+.breadcrumbs,
+.system-status,
+.app-footer {
+  color: var(--color-text-muted);
+}
+
+.breadcrumbs i {
+  color: var(--color-muted-blue);
+}
+
+.system-status i,
+.nav-live-dot {
+  background: var(--color-success);
+}
+
+.icon-button {
+  border-color: var(--color-border);
+  border-radius: var(--radius-input);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.icon-button:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.avatar {
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+}
+
+.user-chip small,
+.page-heading p,
+.page-error p,
+.eyebrow,
+.panel-header p,
+.empty-inline {
+  color: var(--color-text-muted);
+}
+
+.page-heading h1,
+.page-heading h2,
+.page-error h1,
+.page-error h2,
+.auth-form-heading h2 {
+  color: var(--color-text-primary);
+}
+
+.page-heading h1 {
+  font-size: var(--font-size-page-title);
+}
+
+.page-heading p {
+  font-size: var(--font-size-body);
+}
+
+.eyebrow {
+  font-size: var(--font-size-label);
+}
+
+.panel-header h2 {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.panel-header p,
+.metric-top,
+.metric-note {
+  font-size: var(--font-size-metadata);
+}
+
+.btn,
+.heading-actions .btn,
+.page-error .btn,
+.form-modal-footer .btn {
+  min-height: 44px;
+  border-radius: var(--radius-button);
+  font-weight: var(--font-weight-semibold);
+  transition: color var(--transition-ui), background var(--transition-ui), border-color var(--transition-ui), transform var(--transition-ui);
+}
+
+.btn-primary,
+.auth-submit {
+  border-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+  box-shadow: none;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible,
+.auth-submit:hover:not(:disabled) {
+  border-color: var(--color-accent-hover);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent-hover);
+}
+
+.btn-primary:active,
+.auth-submit:active:not(:disabled) {
+  border-color: var(--color-accent-pressed);
+  background: var(--color-accent-pressed);
+  transform: translateY(1px);
+}
+
+.btn-light {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.btn-light:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.btn-outline-primary {
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+}
+
+.btn-outline-primary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+}
+
+.btn-outline-danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn-outline-danger:hover {
+  border-color: var(--color-danger);
+  color: var(--color-white);
+  background: var(--color-danger);
+}
+
+.metric-card,
+.panel,
+.table-card,
+.trip-operation-card,
+.fleet-vehicle-card,
+.tracking-trip-item,
+.passenger-trip-card,
+.booking-history-card,
+.notification-card,
+.upcoming-trip-card,
+.driver-current-trip,
+.record-panel,
+.detail-aside,
+.seat-panel,
+.user-profile-summary,
+.user-profile-section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.metric-card:hover,
+.trip-operation-card:hover,
+.fleet-vehicle-card:hover,
+.tracking-trip-item:hover,
+.passenger-trip-card:hover,
+.booking-history-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+}
+
+.metric-top,
+.metric-note,
+.network-count span,
+.network-stats > div,
+.chart-footer,
+.chart-day,
+.chart-value,
+.stacked-cell small,
+.table-count,
+.table-pagination,
+.table-message p,
+.record-field > span,
+.record-field small,
+.detail-aside p,
+.aside-note,
+.trip-card-meta,
+.trip-card-meta small,
+.booking-history-meta,
+.upcoming-trip-facts,
+.driver-trip-facts span,
+.fleet-card-info span,
+.tracking-trip-meta,
+.notification-copy p,
+.notification-copy time {
+  color: var(--color-text-secondary);
+}
+
+.metric-value,
+.network-count strong,
+.network-stats strong,
+.chart-footer strong,
+.panel-header h2,
+.trip-card-header strong,
+.trip-card-route strong,
+.stacked-cell strong,
+.primary-cell,
+.record-field strong,
+.fleet-vehicle-card strong,
+.tracking-detail-title,
+.notification-copy h2,
+.booking-history-main h3,
+.upcoming-trip-card h2,
+.driver-current-trip h2 {
+  color: var(--color-text-primary);
+}
+
+.metric-dot,
+.chart-bar,
+.chart-bar-today,
+.chart-legend {
+  background: var(--color-accent);
+}
+
+.chart-track,
+.network-foot,
+.activity-chart,
+.table-message,
+.panel-empty {
+  background: var(--color-secondary-surface);
+}
+
+.network-rule,
+.app-table > :not(caption) > * > *,
+.table-toolbar,
+.chart-footer,
+.form-modal-header,
+.form-modal-footer,
+.user-profile-identity,
+.user-booking-row {
+  border-color: var(--color-divider);
+}
+
+.panel-link,
+.panel-empty a,
+.table-id-link,
+.user-profile-schema-link,
+.user-bookings-more {
+  color: var(--color-accent-hover);
+}
+
+.panel-link:hover,
+.table-sort:hover {
+  color: var(--color-accent-pressed);
+}
+
+.app-table {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body);
+  --bs-table-color: var(--color-text-secondary);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--color-divider);
+}
+
+.app-table thead th {
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  font-size: var(--font-size-metadata);
+}
+
+.app-table tbody tr {
+  background: transparent;
+}
+
+.app-table tbody tr:hover {
+  background: var(--color-accent-tint);
+}
+
+.table-progress,
+.table-progress-label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.table-progress {
+  min-width: 100px;
+}
+
+.table-progress-label {
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.table-progress-label strong {
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.table-progress-label small {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.table-progress-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: var(--radius-chip);
+  background: var(--color-secondary-surface);
+}
+
+.table-progress-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-accent);
+}
+
+.status-pill,
+.booking-state,
+.booking-status,
+.user-booking-status {
+  border: 1px solid transparent;
+  border-radius: var(--radius-chip);
+}
+
+.status-tone-success,
+.status-active,
+.status-completed,
+.status-paid,
+.status-available,
+.status-confirmed,
+.state-confirmed,
+.user-booking-status.status-confirmed {
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.status-tone-info,
+.status-tone-live,
+.status-scheduled,
+.status-pending,
+.status-in_progress,
+.status-in-trip {
+  color: var(--color-information);
+  background: var(--color-information-tint);
+}
+
+.status-tone-danger,
+.status-cancelled,
+.status-inactive,
+.status-maintenance,
+.status-failed,
+.state-cancelled,
+.user-booking-status.status-cancelled {
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.status-tone-warning,
+.state-in_progress {
+  color: var(--color-warning);
+  background: var(--color-warning-tint);
+}
+
+.status-tone-neutral,
+.state-completed {
+  color: var(--color-text-secondary);
+  background: var(--color-secondary-surface);
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.table-responsive {
+  scrollbar-color: var(--color-muted-blue) var(--color-surface-elevated);
+  scrollbar-width: thin;
+}
+
+.search-box,
+.filter-select,
+.search-box input,
+.filter-select select {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.search-box:focus-within,
+.filter-select:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+
+.search-box input,
+.filter-select select {
+  color: var(--color-text-primary);
+}
+
+.search-box input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.row-action,
+.pagination-button {
+  border: 1px solid transparent;
+  color: var(--color-text-secondary);
+  background: transparent;
+}
+
+.row-action:hover,
+.pagination-button:hover:not(:disabled) {
+  border-color: var(--color-border);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.row-action.danger-action:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.pagination-button:disabled {
+  color: var(--color-text-muted);
+  background: var(--color-surface-elevated);
+}
+
+.page-indicator,
+.record-id-badge {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+}
+
+.record-field,
+.record-grid {
+  border-color: var(--color-divider);
+}
+
+.aside-icon {
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.aside-note {
+  border-color: var(--color-border);
+  background: var(--color-surface-elevated);
+}
+
+.detail-skeleton > div,
+.skeleton-head,
+.skeleton-row,
+.loading-title,
+.metric-skeleton {
+  background: linear-gradient(90deg, var(--color-secondary-surface) 25%, var(--color-surface-elevated) 50%, var(--color-secondary-surface) 75%);
+}
+
+.page-error,
+.inline-error,
+.table-message {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.page-error h1,
+.page-error h2,
+.table-message strong {
+  color: var(--color-text-primary);
+}
+
+.back-link {
+  color: var(--color-accent-hover);
+}
+
+.modal-backdrop-custom {
+  background: var(--color-overlay);
+}
+
+.form-modal {
+  border-color: var(--color-border);
+  border-radius: var(--radius-bottom-sheet);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+}
+
+.form-modal-header h2 {
+  color: var(--color-text-primary);
+}
+
+.field-label,
+.checkbox-label,
+.auth-field label {
+  color: var(--color-text-secondary);
+}
+
+.field-label b {
+  color: var(--color-danger);
+}
+
+.form-field input:not([type="checkbox"]),
+.form-field select,
+.form-field textarea,
+.auth-field input,
+.auth-field select {
+  border-color: var(--color-border);
+  border-radius: var(--radius-input);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  color-scheme: light;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder,
+.auth-field input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus,
+.auth-field input:focus,
+.auth-field select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+
+.form-field input[aria-invalid="true"],
+.form-field select[aria-invalid="true"],
+.form-field textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.field-help,
+.auth-field label span,
+.auth-field small {
+  color: var(--color-text-muted);
+}
+
+.checkbox-label input {
+  accent-color: var(--color-accent);
+}
+
+.form-alert,
+.auth-alert {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.form-hint {
+  border: 1px solid var(--color-information);
+  color: var(--color-information);
+  background: var(--color-information-tint);
+}
+
+.app-toast {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+}
+
+.toast-success > i,
+.auth-note i,
+.auth-success i {
+  color: var(--color-success);
+}
+
+.toast-error {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.auth-page {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+.auth-story {
+  color: var(--color-text-primary);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.9) 24%, rgba(255, 255, 255, 0.6) 38%, rgba(255, 255, 255, 0) 57%),
+    linear-gradient(180deg, #fffdf8 0%, #fffaf0 36%, #ffffff 100%),
+    url('/wasalni-transport-scene-cinematic-4k.png') right center / cover no-repeat;
+}
+
+.auth-story::before,
+.auth-story::after {
+  border-color: rgb(255 201 40 / 10%);
+}
+
+.auth-kicker,
+.auth-story-content > p,
+.auth-story-footer {
+  color: var(--color-text-secondary);
+}
+
+.auth-kicker i,
+.online-dot {
+  background: var(--color-success);
+}
+
+.auth-story h1 {
+  color: var(--color-secondary);
+}
+
+.auth-story h1 em {
+  color: var(--color-accent-hover);
+}
+
+.auth-illustration {
+  border-color: rgb(255 201 40 / 18%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+}
+
+.map-grid {
+  background-image: linear-gradient(var(--color-accent-grid) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent-grid) 1px, transparent 1px);
+}
+
+.map-route-shadow {
+  stroke: var(--color-accent-tint);
+}
+
+.map-node {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.map-node i,
+.route-card-icon {
+  color: var(--color-accent);
+}
+
+.route-card {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.route-card-icon {
+  background: var(--color-accent-tint);
+}
+
+.route-card strong {
+  color: var(--color-text-primary);
+}
+
+.route-card small {
+  color: var(--color-text-secondary);
+}
+
+.auth-form-side {
+  background: var(--color-background);
+}
+
+.auth-form-heading .eyebrow,
+.auth-form-heading h2 {
+  color: var(--color-text-primary);
+}
+
+.auth-form-heading p,
+.auth-switch,
+.auth-note,
+.password-strength {
+  color: var(--color-text-secondary);
+}
+
+.auth-forgot-link,
+.auth-switch a {
+  color: var(--color-accent-hover);
+}
+
+.auth-password-control button {
+  color: var(--color-text-secondary);
+}
+
+.password-strength progress {
+  accent-color: var(--color-accent);
+}
+
+.auth-success {
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.route-map {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-elevated);
+  background-image:
+    linear-gradient(35deg, transparent 49.4%, var(--color-route-grid) 49.8%, var(--color-route-grid) 50.3%, transparent 50.7%),
+    linear-gradient(145deg, transparent 48.8%, var(--color-route-grid-highlight) 49.2%, var(--color-route-grid-highlight) 49.8%, transparent 50.2%),
+    linear-gradient(90deg, var(--color-map-grid) 1px, transparent 1px),
+    linear-gradient(var(--color-map-grid) 1px, transparent 1px);
+}
+
+.map-street {
+  border-color: var(--color-map-street-border);
+  background: var(--color-map-street);
+}
+
+.map-route-line {
+  stroke: var(--color-accent);
+}
+
+.map-station-label,
+.map-route-caption,
+.map-disclaimer,
+.map-no-coordinates,
+.tracking-trip-list,
+.tracking-trip-detail,
+.tracking-map-toolbar,
+.map-legend,
+.tracking-empty,
+.tracking-empty-detail,
+.tracking-skeleton,
+.fleet-status-list,
+.fleet-card-info,
+.fleet-telemetry-note,
+.fleet-assignment-warning,
+.trip-route-detail {
+  color: var(--color-text-secondary);
+}
+
+.map-station-label-active {
+  color: var(--color-accent-hover);
+}
+
+.tracking-trip-selected,
+.tracking-trip-item:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.tracking-map-toolbar,
+.map-legend,
+.fleet-telemetry-note,
+.fleet-assignment-warning {
+  border-color: var(--color-border);
+  background: var(--color-surface-elevated);
+}
+
+.trip-search-form,
+.booking-selection-summary,
+.seat-panel,
+.trip-operation-card,
+.passenger-trip-card,
+.notification-card,
+.booking-history-card,
+.upcoming-trip-card,
+.driver-current-trip,
+.passenger-alert-list,
+.recent-booking {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.trip-search-form .form-hint {
+  color: var(--color-information);
+}
+
+.trip-search-form {
+  grid-template-columns: minmax(150px, 1fr) 44px minmax(150px, 1fr) minmax(160px, .8fr) auto;
+}
+
+.trip-card-route strong,
+.seat-panel .panel-header h2,
+.selected-seat-summary strong,
+.confirmation-details dd,
+.profile-details dd,
+.booking-history-main h3,
+.booking-history-meta strong,
+.driver-current-trip h2,
+.driver-trip-facts strong,
+.manifest-seat,
+.notification-copy h2 {
+  color: var(--color-text-primary);
+}
+
+.trip-card-meta,
+.seat-panel .panel-header p,
+.seat-legend,
+.seat-capacity,
+.selected-seat-summary,
+.booking-history-meta,
+.booking-history-main p,
+.notification-copy p,
+.notification-copy time,
+.driver-trip-facts span,
+.confirmation-details dt,
+.profile-details dt {
+  color: var(--color-text-secondary);
+}
+
+.vehicle-seat-layout {
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-elevated);
+}
+
+.vehicle-seat {
+  border-color: var(--seat-available-border);
+  color: var(--color-text-primary);
+  background: var(--seat-available-fill);
+  transition: transform var(--transition-ui), border-color var(--transition-ui), box-shadow var(--transition-ui), background var(--transition-ui);
+}
+
+.vehicle-seat.seat-selected {
+  border-color: var(--color-accent);
+  color: var(--seat-selected-text);
+  background: var(--seat-selected-fill);
+}
+
+.vehicle-seat.seat-booked {
+  border-color: var(--seat-booked-fill);
+  color: var(--seat-booked-text);
+  background: repeating-linear-gradient(135deg, var(--seat-booked-fill), var(--seat-booked-fill) 4px, var(--color-neutral-booked-highlight) 4px, var(--color-neutral-booked-highlight) 7px);
+}
+
+.vehicle-seat.seat-disabled {
+  border-color: var(--seat-blocked-text);
+  color: var(--seat-blocked-text);
+  background: repeating-linear-gradient(135deg, var(--seat-blocked-fill), var(--seat-blocked-fill) 4px, var(--color-surface) 4px, var(--color-surface) 7px);
+}
+
+.seat-legend-dot {
+  border-color: var(--seat-available-border);
+  background: var(--seat-available-fill);
+}
+
+.seat-legend-dot.chosen {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.seat-legend-dot.booked {
+  border-color: var(--seat-booked-fill);
+  background: repeating-linear-gradient(135deg, var(--seat-booked-fill), var(--seat-booked-fill) 3px, var(--color-neutral-booked-highlight) 3px, var(--color-neutral-booked-highlight) 6px);
+}
+
+.seat-legend-dot.disabled {
+  border-color: var(--seat-blocked-text);
+  background: repeating-linear-gradient(135deg, var(--seat-blocked-fill), var(--seat-blocked-fill) 3px, var(--color-surface) 3px, var(--color-surface) 6px);
+}
+
+.seat-driver,
+.seat-driver i,
+.seat-capacity > div:first-child strong,
+.seat-capacity > strong {
+  color: var(--color-text-secondary);
+}
+
+.occupancy-track {
+  background: var(--color-secondary-surface);
+}
+
+.occupancy-track span {
+  background: var(--color-accent);
+}
+
+.booking-selection-summary {
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.booking-selection-summary .selected-seat-summary:nth-of-type(2) {
+  border-color: var(--color-divider);
+}
+
+.booking-selection-summary .selected-seat-summary:nth-of-type(2) strong {
+  color: var(--color-accent-hover);
+}
+
+.confirmation-route {
+  min-width: 0;
+  margin: 0 var(--space-6);
+  color: var(--color-secondary);
+  background: var(--color-secondary-surface);
+  font-size: var(--font-size-body);
+}
+
+.confirmation-route i {
+  color: var(--color-accent);
+  flex: 0 0 auto;
+}
+
+.booking-confirmation .form-modal-header {
+  padding: var(--space-5) var(--space-6);
+}
+
+.booking-confirmation .form-modal-header h2 {
+  font-size: var(--font-size-section-title);
+}
+
+.confirmation-details {
+  margin: var(--space-3) 0;
+  padding: 0 var(--space-6);
+}
+
+.confirmation-details > div,
+.profile-details > div {
+  border-color: var(--color-divider);
+}
+
+.confirmation-details > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+.confirmation-details dt,
+.confirmation-details dd {
+  min-width: 0;
+}
+
+.confirmation-details dd {
+  overflow-wrap: anywhere;
+}
+
+.confirmation-details .confirmation-total {
+  font-size: var(--font-size-section-title);
+}
+
+.confirmation-total dd {
+  color: var(--color-accent-hover);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-bold);
+}
+
+.user-collections {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.user-collection {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.user-collection-heading {
+  display: flex;
+  min-height: 82px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.user-collection-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--radius-input);
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+  font-size: var(--icon-size-default);
+}
+
+.user-collection-icon-driver {
+  color: var(--color-information);
+  background: var(--color-information-tint);
+}
+
+.user-collection-icon-other {
+  color: var(--color-secondary);
+  background: var(--color-secondary-surface);
+}
+
+.user-collection-heading h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.user-collection-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-metadata);
+}
+
+.user-collection-count {
+  display: grid;
+  min-width: 36px;
+  height: 36px;
+  margin-left: auto;
+  padding: 0 var(--space-2);
+  place-items: center;
+  border-radius: var(--radius-chip);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+  font-size: var(--font-size-metadata);
+  font-weight: var(--font-weight-bold);
+}
+
+.user-collection .table-card {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.account-profile-page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.account-profile-heading {
+  align-items: center;
+}
+
+.account-profile-secure,
+.account-profile-role {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  font-size: var(--font-size-metadata);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.account-profile-secure i,
+.account-profile-role i {
+  color: var(--color-accent);
+}
+
+.account-profile-card {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(var(--space-4), 3vw, var(--space-7));
+}
+
+.account-profile-overview {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.profile-avatar.account-profile-avatar {
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+  border: 4px solid var(--color-accent-tint);
+  font-size: var(--font-size-section-title);
+}
+
+.account-profile-intro {
+  min-width: 0;
+}
+
+.account-profile-intro .eyebrow {
+  color: var(--color-accent-hover);
+  text-transform: capitalize;
+}
+
+.account-profile-intro h2 {
+  margin: var(--space-1) 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.account-profile-intro p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body);
+}
+
+.account-profile-role {
+  margin-left: auto;
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  text-transform: capitalize;
+}
+
+.account-profile-role i {
+  color: inherit;
+}
+
+.account-profile-section-heading h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.account-profile-section-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-metadata);
+}
+
+.account-profile-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.account-profile-details > div {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background: var(--color-surface-elevated);
+}
+
+.account-profile-details dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-metadata);
+}
+
+.account-profile-details dt i {
+  color: var(--color-accent);
+}
+
+.account-profile-details dd {
+  overflow-wrap: anywhere;
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+.booking-confirmation .form-modal-footer {
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-5);
+}
+
+.booking-confirmation .form-modal-footer .btn {
+  min-height: 44px;
+  font-size: var(--font-size-body);
+}
+
+.booking-empty,
+.tracking-empty,
+.tracking-empty-detail {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.booking-empty h2,
+.booking-empty h3 {
+  color: var(--color-text-primary);
+}
+
+.booking-state {
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.state-cancelled {
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.state-completed {
+  color: var(--color-text-secondary);
+  background: var(--color-secondary-surface);
+}
+
+.state-in_progress {
+  color: var(--color-warning);
+  background: var(--color-warning-tint);
+}
+
+.notification-unread {
+  border-color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.notification-icon,
+.user-profile-info-icon,
+.user-profile-section-icon,
+.user-booking-icon {
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.notification-trip_reminder {
+  color: var(--color-warning);
+  background: var(--color-warning-tint);
+}
+
+.notification-booking_confirmation {
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.unread-label {
+  color: var(--color-information);
+  background: var(--color-information-tint);
+}
+
+.profile-avatar {
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+}
+
+.user-profile-identity h2,
+.user-profile-section-heading h2,
+.user-profile-contact h3,
+.user-profile-info-copy > strong,
+.user-profile-info-copy > a,
+.user-booking-route strong,
+.user-booking-seats strong {
+  color: var(--color-text-primary);
+}
+
+.user-profile-identity > p,
+.user-profile-id,
+.user-profile-info-copy > span,
+.user-profile-section-heading p,
+.user-booking-route span,
+.user-booking-seats span {
+  color: var(--color-text-secondary);
+}
+
+.user-profile-avatar-fallback {
+  border-color: var(--color-border);
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.user-profile-role {
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.user-profile-contact,
+.user-profile-identity {
+  border-color: var(--color-divider);
+}
+
+.user-profile-copy-contact {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.user-profile-copy-contact:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.user-profile-status.is-active {
+  color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.user-profile-status.is-inactive {
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.user-booking-metrics > div {
+  border-color: var(--color-border);
+  background: var(--color-surface-elevated);
+}
+
+.user-booking-metrics strong {
+  color: var(--color-accent-hover);
+}
+
+.user-booking-metrics span,
+.user-bookings-loading,
+.user-bookings-empty {
+  color: var(--color-text-secondary);
+}
+
+.user-bookings-count {
+  color: var(--color-text-secondary);
+  background: var(--color-secondary-surface);
+}
+
+.user-bookings-error {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.drawer-scrim {
+  background: var(--color-overlay-strong);
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+.trip-search-swap {
+  min-width: 44px;
+  min-height: 44px;
+  align-self: end;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  color: var(--color-accent-hover);
+  background: var(--color-surface);
+}
+
+.trip-search-swap:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.date-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: var(--space-2);
+}
+
+.date-shortcut {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.date-shortcut[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+}
+
+.trip-card-route {
+  align-items: stretch;
+}
+
+.trip-route-timeline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
+  min-width: 0;
+}
+
+.trip-route-times {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-5);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-bold);
+}
+
+.trip-route-stops {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.trip-route-stops::before {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: 4px;
+  border-left: 1px dashed var(--color-muted-blue);
+  content: "";
+}
+
+.trip-route-stop {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.trip-route-stop i {
+  z-index: 1;
+  color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+.trip-route-stop strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trip-duration-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-chip);
+  color: var(--color-text-secondary);
+  background: var(--color-secondary-surface);
+}
+
+.trip-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-chip);
+  color: var(--color-success);
+  background: var(--color-success-tint);
+  font-size: var(--font-size-metadata);
+  font-weight: var(--font-weight-semibold);
+}
+
+.selected-seat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.selected-seat-chip {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-chip);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+  font-weight: var(--font-weight-semibold);
+}
+
+.selected-seat-chip:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger-tint);
+}
+
+.seat-front,
+.seat-rear {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-metadata);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.seat-front {
+  align-self: flex-end;
+  margin: 0 var(--space-2) var(--space-2) 0;
+}
+
+.seat-rear {
+  margin-top: var(--space-2);
+}
+
+.vehicle-layout-preview {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-elevated);
+}
+
+.vehicle-layout-preview h3 {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-section-title);
+}
+
+.vehicle-layout-preview .vehicle-seat-layout {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: center;
+}
+
+.vehicle-layout-preview .vehicle-seat {
+  cursor: default;
+}
+
+.vehicle-layout-preview .vehicle-seat:disabled {
+  cursor: default;
+}
+
+.route-graphic-base {
+  stroke: var(--color-muted-blue);
+}
+
+.route-graphic-stop {
+  fill: var(--color-surface);
+  stroke: var(--color-accent);
+}
+
+.route-graphic-vehicle {
+  rx: var(--radius-button);
+  fill: var(--color-surface);
+}
+
+.route-graphic-mark {
+  fill: var(--color-accent);
+  font-size: var(--icon-size-default);
+}
+
+.route-graphic-start {
+  stop-color: var(--color-accent);
+}
+
+.route-graphic-end {
+  stop-color: var(--color-muted-blue);
+}
+
+.style-guide-page {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.style-guide-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.style-guide-swatch {
+  display: flex;
+  min-height: 92px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.style-guide-swatch strong {
+  font-size: var(--font-size-label);
+}
+
+.style-guide-color {
+  display: block;
+  width: 100%;
+  height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+}
+
+.style-guide-swatch code {
+  color: var(--color-text-secondary);
+}
+
+.style-guide-example {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.style-guide-controls,
+.style-guide-seat-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.style-guide-seat-examples {
+  margin-top: var(--space-5);
+}
+
+.style-guide-caption {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-metadata);
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .auth-story {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    z-index: 50;
+    transform: translateX(-105%);
+    transition: transform var(--transition-ui);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .drawer-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: block;
+    border: 0;
+  }
+
+  .workspace {
+    margin-left: 0;
+  }
+
+  .topbar {
+    height: 60px;
+    padding: 0 var(--space-4);
+  }
+
+  .mobile-menu {
+    display: inline-grid;
+  }
+
+  .system-status,
+  .docs-button {
+    display: none;
+  }
+
+  .user-chip {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .user-chip > span:last-child {
+    display: none;
+  }
+
+  .page-content {
+    padding: var(--space-6) var(--space-4) calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .app-footer {
+    padding: var(--space-3) var(--space-4) calc(var(--space-4) + 64px + env(safe-area-inset-bottom));
+  }
+
+  .dashboard-heading,
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .heading-actions {
+    width: 100%;
+  }
+
+  .heading-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .dashboard-main-grid,
+  .record-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-aside {
+    order: -1;
+  }
+
+  .table-toolbar {
+    flex-wrap: wrap;
+    padding: var(--space-3);
+  }
+
+  .search-box {
+    flex: 1 1 100%;
+  }
+
+  .table-count {
+    margin-left: auto;
+  }
+
+  .app-table {
+    min-width: 720px;
+  }
+
+  .form-grid {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .form-modal-header,
+  .form-modal-footer {
+    padding-right: var(--space-4);
+    padding-left: var(--space-4);
+  }
+
+  .modal-backdrop-custom {
+    align-items: flex-end;
+    padding: var(--space-2);
+  }
+
+  .form-modal {
+    max-height: 94vh;
+  }
+}
+
+@media (max-width: 900px) {
+  .trip-search-form {
+    grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) minmax(140px, 1fr);
+  }
+
+  .trip-search-form > .btn {
+    grid-column: 1 / -1;
+  }
+
+  .sidebar {
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .topbar {
+    min-height: 60px;
+    background: var(--color-surface-glass-strong);
+  }
+
+  .mobile-menu {
+    width: 44px;
+    height: 44px;
+  }
+
+  .nav-link-item {
+    min-height: 44px;
+  }
+
+  .mobile-bottom-nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 35;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-glass-strong);
+    box-shadow: var(--shadow-bar);
+    backdrop-filter: blur(16px);
+  }
+
+  .mobile-bottom-nav a {
+    display: flex;
+    min-width: 0;
+    min-height: 48px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    border-radius: var(--radius-input);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-metadata);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .mobile-bottom-nav a i {
+    font-size: var(--icon-size-default);
+  }
+
+  .mobile-bottom-nav a.active {
+    color: var(--color-accent-hover);
+    background: var(--color-accent-tint);
+  }
+
+  .mobile-bottom-nav a {
+    position: relative;
+  }
+
+  .mobile-nav-badge {
+    position: absolute;
+    top: var(--space-1);
+    right: calc(50% - 22px);
+    min-width: 16px;
+    padding: 1px 4px;
+    border-radius: var(--radius-chip);
+    color: var(--color-white);
+    background: var(--color-danger);
+    font-size: var(--font-size-micro);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .page-content {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .app-footer {
+    padding-bottom: calc(var(--space-4) + 64px + env(safe-area-inset-bottom));
+  }
+
+  .trip-search-swap {
+    justify-self: end;
+  }
+
+  .date-shortcuts {
+    grid-column: auto;
+  }
+
+  .trip-route-times,
+  .trip-route-stops {
+    gap: var(--space-3);
+  }
+
+  .booking-selection-summary {
+    position: fixed;
+    z-index: 30;
+    right: var(--space-3);
+    bottom: calc(66px + env(safe-area-inset-bottom));
+    left: var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-bottom-sheet);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .booking-selection-summary::before {
+    width: 36px;
+    height: 4px;
+    align-self: center;
+    border-radius: var(--radius-chip);
+    background: var(--color-border);
+    content: "";
+  }
+
+  .booking-selection-summary .selected-seat-summary:nth-of-type(2) {
+    padding-top: var(--space-2);
+  }
+
+  .booking-selection-summary .btn {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .booking-confirmation .form-modal-header {
+    padding: var(--space-4);
+  }
+
+  .confirmation-route {
+    margin-right: var(--space-4);
+    margin-left: var(--space-4);
+  }
+
+  .confirmation-details {
+    padding-right: var(--space-4);
+    padding-left: var(--space-4);
+  }
+
+  .confirmation-details > div {
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+  }
+
+  .booking-confirmation .form-modal-footer {
+    padding-right: var(--space-4);
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    padding-left: var(--space-4);
+  }
+
+  .user-profile-actions .btn {
+    min-width: 0;
+  }
+
+  .user-profile-heading,
+  .page-heading {
+    gap: var(--space-3);
+  }
+
+  .account-profile-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .user-collections {
+    gap: var(--space-4);
+  }
+
+  .user-collection-heading {
+    min-height: 72px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .user-collection-heading p {
+    display: none;
+  }
+
+  .account-profile-heading {
+    align-items: flex-start;
+  }
+
+  .account-profile-secure {
+    display: none;
+  }
+
+  .account-profile-overview {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .profile-avatar.account-profile-avatar {
+    width: 56px;
+    height: 56px;
+  }
+
+  .account-profile-role {
+    margin-left: 0;
+  }
+
+  .account-profile-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trip-search-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .trip-search-form .form-hint {
+    grid-column: auto;
+  }
+
+  .trip-search-form .btn {
+    min-height: 48px;
+  }
+
+  .trip-card-route {
+    min-height: 80px;
+  }
+
+  .seat-panel {
+    padding: var(--space-4);
+  }
+
+  .seat-picker-grid {
+    gap: var(--space-3);
+  }
+
+  .booking-confirmation {
+    align-self: flex-end;
+    max-height: calc(92vh - env(safe-area-inset-top));
+    margin-bottom: env(safe-area-inset-bottom);
+    border-radius: var(--radius-bottom-sheet) var(--radius-bottom-sheet) var(--radius-input) var(--radius-input);
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --screen-padding: 16px;
+  }
+
+  .mobile-bottom-nav a {
+    font-size: var(--font-size-tiny);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+[dir="rtl"] .nav-link-item.active {
+  box-shadow: inset -3px 0 var(--color-accent);
+}
+
+[dir="rtl"] .trip-route-stops::before {
+  right: 4px;
+  left: auto;
+}
+
+[dir="rtl"] .trip-route-stop {
+  flex-direction: row-reverse;
+}
