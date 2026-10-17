@@ -99,7 +99,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         role = validated_data.pop('role')
         with transaction.atomic():
-            user = User.objects.create_user(**validated_data, role=role)
+            user = User.objects.create_user(
+                **validated_data,
+                role=role,
+                email_verified=False,
+            )
             if role == 'driver':
                 Driver.objects.create(user=user)
         return user
@@ -107,6 +111,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+
+class EmailVerificationRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.RegexField(regex=r'^\d{6}$')
 
 
 class ResetPasswordSerializer(serializers.Serializer):

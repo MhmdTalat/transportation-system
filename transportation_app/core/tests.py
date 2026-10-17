@@ -1,8 +1,10 @@
 from datetime import datetime, time, timedelta
+from html import unescape
 from urllib.parse import parse_qs, urlsplit
 import re
 from unittest.mock import patch
 
+import django
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.db import IntegrityError, connection
@@ -27,6 +29,48 @@ from .models import (
 )
 from .services.notification_service import create_due_trip_reminders
 from .services.trip_service import TripService
+from config.settings import _validate_production_configuration
+
+
+TEST_EMAIL_SETTINGS = (
+    {
+        'MAILERS': {
+            'default': {
+                'BACKEND': 'django.core.mail.backends.locmem.EmailBackend',
+                'OPTIONS': {},
+            },
+        },
+    }
+    if django.VERSION >= (6, 1)
+    else {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend'}
+)
+
+
+class ProductionSettingsTests(TestCase):
+    def test_production_configuration_requires_secure_values(self):
+        secure_configuration = (
+            False,
+            'a-secure-production-key-that-is-long-enough-and-unique-123456789',
+            ['wasalni.example'],
+            True,
+            3600,
+            True,
+            True,
+        )
+        _validate_production_configuration(*secure_configuration)
+
+        invalid_configurations = (
+            (False, 'short', ['wasalni.example'], True, 3600, True, True),
+            (False, secure_configuration[1], ['*'], True, 3600, True, True),
+            (False, secure_configuration[1], ['wasalni.example'], False, 3600, True, True),
+            (False, secure_configuration[1], ['wasalni.example'], True, 0, True, True),
+            (False, secure_configuration[1], ['wasalni.example'], True, 3600, False, True),
+            (False, secure_configuration[1], ['wasalni.example'], True, 3600, True, False),
+        )
+        for configuration in invalid_configurations:
+            with self.subTest(configuration=configuration):
+                with self.assertRaises(ValueError):
+                    _validate_production_configuration(*configuration)
 
 
 class TransportApiTests(TestCase):
@@ -66,6 +110,42 @@ class TransportApiTests(TestCase):
         self.assertEqual(response.data['results'][0]['route']['id'], route.id)
         self.assertEqual(response.data['results'][0]['fare'], '15.00')
 
+    def test_route_search_ignores_expired_and_future_fare_rules(self):
+        start = Station.objects.create(name='Fare Start', latitude=30.0, longitude=31.0)
+        end = Station.objects.create(name='Fare End', latitude=30.2, longitude=31.2)
+        route = Route.objects.create(name='Fare Validity Route', status='active')
+        RouteStation.objects.create(route=route, station=start, sequence_order=1)
+        RouteStation.objects.create(route=route, station=end, sequence_order=2)
+        now = timezone.now()
+        FareRule.objects.create(
+            route=route,
+            rule_type='fixed',
+            amount='1.00',
+            is_active=True,
+            valid_to=now - timedelta(seconds=1),
+        )
+        FareRule.objects.create(
+            route=route,
+            rule_type='fixed',
+            amount='2.00',
+            is_active=True,
+            valid_from=now + timedelta(seconds=1),
+        )
+        FareRule.objects.create(
+            route=route,
+            rule_type='fixed',
+            amount='15.00',
+            is_active=True,
+        )
+
+        response = self.client.post('/api/trips/search/', {
+            'start_station_id': start.pk,
+            'destination_station_id': end.pk,
+        }, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'][0]['fare'], '15.00')
+
     def test_trip_creation_creates_payment_record(self):
         start = Station.objects.create(name='Alpha', latitude=1.0, longitude=1.0, is_active=True)
         end = Station.objects.create(name='Beta', latitude=2.0, longitude=2.0, is_active=True)
@@ -99,6 +179,21 @@ class TransportApiTests(TestCase):
         self.assertTrue(Trip.objects.filter(route=route).exists())
         self.assertTrue(response.data['is_published'])
         self.assertEqual(response.data['payment']['amount'], '8.50')
+        self.assertEqual(response.data['payment']['status'], 'pending')
+
+    def test_jwt_refresh_endpoint_returns_a_new_access_token(self):
+        token_response = self.client.post('/api/token/', {
+            'username': self.user.username,
+            'password': 'secret123',
+        }, format='json')
+        self.assertEqual(token_response.status_code, 200)
+
+        refresh_response = self.client.post('/api/token/refresh/', {
+            'refresh': token_response.data['refresh'],
+        }, format='json')
+
+        self.assertEqual(refresh_response.status_code, 200)
+        self.assertIn('access', refresh_response.data)
 
     def test_trip_creation_rejects_identical_start_and_destination_stations(self):
         station = Station.objects.create(
@@ -486,6 +581,66 @@ class TransportApiTests(TestCase):
             0,
         )
 
+    def test_analytics_dashboard_reports_booking_trends_cancellations_and_occupancy(self):
+        station = Station.objects.create(name='Booking Analytics Station', latitude=1, longitude=1)
+        route = Route.objects.create(name='Booking Analytics Route')
+        vehicle = Vehicle.objects.create(
+            registration_number='ANALYTICS-1',
+            capacity=4,
+            disabled_seats=[4],
+        )
+        trip = Trip.objects.create(
+            route=route,
+            vehicle=vehicle,
+            start_station=station,
+            destination_station=station,
+            status='scheduled',
+            created_by=self.user,
+        )
+        confirmed = Booking.objects.create(
+            passenger=self.user,
+            trip=trip,
+            status='confirmed',
+            total_amount='20.00',
+        )
+        BookingSeat.objects.create(
+            booking=confirmed,
+            trip=trip,
+            seat_number=1,
+        )
+        BookingSeat.objects.create(
+            booking=confirmed,
+            trip=trip,
+            seat_number=2,
+        )
+        cancelled = Booking.objects.create(
+            passenger=self.user,
+            trip=trip,
+            status='cancelled',
+            total_amount='10.00',
+        )
+        BookingSeat.objects.create(
+            booking=cancelled,
+            trip=trip,
+            seat_number=3,
+            is_active=False,
+        )
+
+        response = self.client.get('/api/analytics/dashboard/?period=7d&role=admin')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['summary']['bookings_created']['current'], 2)
+        self.assertEqual(response.data['summary']['confirmed_bookings']['current'], 1)
+        self.assertEqual(response.data['summary']['cancelled_bookings']['current'], 1)
+        self.assertEqual(response.data['summary']['booking_cancellation_rate']['current'], 50.0)
+        self.assertEqual(response.data['summary']['seat_occupancy_rate']['current'], 66.7)
+        today = timezone.localdate().isoformat()
+        booking_day = next(
+            item for item in response.data['charts']['booking_volume']
+            if item['date'] == today
+        )
+        self.assertEqual(booking_day['count'], 2)
+
     def test_analytics_dashboard_validates_filters_and_custom_ranges(self):
         invalid_responses = (
             self.client.get('/api/analytics/dashboard/?period=12d'),
@@ -587,8 +742,11 @@ class TransportApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+@override_settings(**TEST_EMAIL_SETTINGS)
 class UserRegistrationApiTests(TestCase):
     def setUp(self):
+        cache.clear()
+        mail.outbox.clear()
         self.client = APIClient()
         self.registration_data = {
             'username': 'new_passenger',
@@ -600,17 +758,43 @@ class UserRegistrationApiTests(TestCase):
             'role': 'passenger',
         }
 
-    def test_registration_creates_passenger_and_allows_login(self):
-        response = self.client.post('/api/register/', self.registration_data, format='json')
+    def test_registration_requires_email_verification_before_login(self):
+        with patch('core.views.secrets.randbelow', return_value=7):
+            response = self.client.post(
+                '/api/register/',
+                self.registration_data,
+                format='json',
+            )
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['username'], self.registration_data['username'])
-        self.assertEqual(response.data['role'], 'passenger')
-        self.assertNotIn('password', response.data)
+        self.assertIn('verification code', response.data['detail'])
 
         user = get_user_model().objects.get(username=self.registration_data['username'])
         self.assertTrue(user.check_password(self.registration_data['password']))
+        self.assertFalse(user.email_verified)
         self.assertFalse(Driver.objects.filter(user=user).exists())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(
+            'Verify Your Transportation Platform Email',
+            mail.outbox[0].subject,
+        )
+        code = re.search(r'(?<!\d)\d{6}(?!\d)', mail.outbox[0].body).group()
+        self.assertEqual(code, '000007')
+
+        token_response = self.client.post('/api/token/', {
+            'username': self.registration_data['username'],
+            'password': self.registration_data['password'],
+        }, format='json')
+        self.assertEqual(token_response.status_code, 401)
+
+        verification_response = self.client.post(
+            '/api/auth/verify-email/',
+            {'email': self.registration_data['email'], 'code': code},
+            format='json',
+        )
+        self.assertEqual(verification_response.status_code, 200)
+        user.refresh_from_db()
+        self.assertTrue(user.email_verified)
 
         token_response = self.client.post('/api/token/', {
             'username': self.registration_data['username'],
@@ -618,6 +802,85 @@ class UserRegistrationApiTests(TestCase):
         }, format='json')
         self.assertEqual(token_response.status_code, 200)
         self.assertIn('access', token_response.data)
+
+    def test_registration_verification_rejects_invalid_code(self):
+        with patch('core.views.secrets.randbelow', return_value=123456):
+            self.client.post('/api/register/', self.registration_data, format='json')
+
+        response = self.client.post(
+            '/api/auth/verify-email/',
+            {'email': self.registration_data['email'], 'code': '654321'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        user = get_user_model().objects.get(username=self.registration_data['username'])
+        self.assertFalse(user.email_verified)
+
+    def test_registration_verification_rejects_expired_code(self):
+        with override_settings(EMAIL_VERIFICATION_TIMEOUT=-1):
+            self.client.post('/api/register/', self.registration_data, format='json')
+        code = re.search(r'(?<!\d)\d{6}(?!\d)', mail.outbox[-1].body).group()
+
+        response = self.client.post(
+            '/api/auth/verify-email/',
+            {'email': self.registration_data['email'], 'code': code},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        user = get_user_model().objects.get(username=self.registration_data['username'])
+        self.assertFalse(user.email_verified)
+
+    def test_registration_email_failure_is_reported_and_code_can_be_resent(self):
+        with self.assertLogs('core.views', level='ERROR'):
+            with patch(
+                'core.views.EmailMultiAlternatives.send',
+                side_effect=RuntimeError('mail service unavailable'),
+            ):
+                response = self.client.post(
+                    '/api/register/',
+                    self.registration_data,
+                    format='json',
+                )
+
+        self.assertEqual(response.status_code, 503)
+        user = get_user_model().objects.get(username=self.registration_data['username'])
+        self.assertFalse(user.email_verified)
+        resend_response = self.client.post(
+            '/api/auth/resend-verification/',
+            {'email': self.registration_data['email']},
+            format='json',
+        )
+        self.assertEqual(resend_response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_registration_verification_code_can_be_resent(self):
+        with patch('core.views.secrets.randbelow', side_effect=(123456, 654321)):
+            self.client.post('/api/register/', self.registration_data, format='json')
+            old_code = re.search(r'(?<!\d)\d{6}(?!\d)', mail.outbox[-1].body).group()
+
+            resend_response = self.client.post(
+                '/api/auth/resend-verification/',
+                {'email': self.registration_data['email']},
+                format='json',
+            )
+            new_code = re.search(r'(?<!\d)\d{6}(?!\d)', mail.outbox[-1].body).group()
+
+        self.assertEqual(resend_response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 2)
+        invalid_response = self.client.post(
+            '/api/auth/verify-email/',
+            {'email': self.registration_data['email'], 'code': old_code},
+            format='json',
+        )
+        valid_response = self.client.post(
+            '/api/auth/verify-email/',
+            {'email': self.registration_data['email'], 'code': new_code},
+            format='json',
+        )
+        self.assertEqual(invalid_response.status_code, 400)
+        self.assertEqual(valid_response.status_code, 200)
 
     def test_registration_works_with_existing_admin_session_without_csrf_token(self):
         get_user_model().objects.create_user(
@@ -640,7 +903,6 @@ class UserRegistrationApiTests(TestCase):
             format='json',
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.status_code, 201)
 
     def test_driver_registration_creates_driver_profile(self):
         data = {
@@ -653,8 +915,9 @@ class UserRegistrationApiTests(TestCase):
         response = self.client.post('/api/register/', data, format='json')
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data['role'], 'driver')
+        self.assertIn('verification code', response.data['detail'])
         user = get_user_model().objects.get(username='new_driver')
+        self.assertEqual(user.role, 'driver')
         self.assertTrue(Driver.objects.filter(user=user).exists())
 
     def test_registration_rejects_privileged_business_roles(self):
@@ -701,12 +964,22 @@ class UserRegistrationApiTests(TestCase):
 
 
 @override_settings(
-    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-    FRONTEND_BASE_URL='https://transit.example',
+    **{
+        **TEST_EMAIL_SETTINGS,
+        'FRONTEND_BASE_URL': 'https://transit.example',
+    },
 )
 class PasswordResetApiTests(TestCase):
     def setUp(self):
         cache.clear()
+        # Avoid the test client's context-copy hook; these tests inspect outbound mail instead.
+        self.template_capture_patcher = patch(
+            'django.test.client.store_rendered_templates',
+            side_effect=lambda store, signal, sender, template, context, **kwargs: (
+                store.setdefault('templates', []).append(template)
+            ),
+        )
+        self.template_capture_patcher.start()
         self.user = get_user_model().objects.create_user(
             username='reset_user',
             first_name='Reset',
@@ -714,6 +987,10 @@ class PasswordResetApiTests(TestCase):
             password='Old-strong-password-123!',
         )
         self.client = APIClient()
+
+    def tearDown(self):
+        self.template_capture_patcher.stop()
+        super().tearDown()
 
     def request_reset(self, email=None):
         return self.client.post(
@@ -724,7 +1001,9 @@ class PasswordResetApiTests(TestCase):
 
     def reset_link_payload(self):
         email = mail.outbox[-1]
-        reset_url = re.search(r'href="([^"]+)"', email.alternatives[0][0]).group(1)
+        reset_url = unescape(
+            re.search(r'href="([^"]+)"', email.alternatives[0][0]).group(1)
+        )
         query = parse_qs(urlsplit(reset_url).query)
         return {'uid': query['uid'][0], 'token': query['token'][0]}
 
@@ -809,12 +1088,35 @@ class PasswordResetApiTests(TestCase):
         self.assertTrue(self.user.check_password('Old-strong-password-123!'))
 
     def test_email_delivery_failure_keeps_generic_response(self):
-        with patch('core.views._send_password_reset_email', side_effect=RuntimeError):
-            response = self.request_reset()
+        with self.assertLogs('core.views', level='ERROR'):
+            with patch('core.views._send_password_reset_email', side_effect=RuntimeError):
+                response = self.request_reset()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['detail'], response.data['detail'])
         self.assertNotIn(self.user.email, str(response.data))
+
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'login': '1/hour',
+                'password_reset_request': '5/hour',
+                'password_reset_submit': '10/hour',
+            },
+        },
+    )
+    def test_login_requests_are_rate_limited(self):
+        first = self.client.post('/api/token/', {
+            'username': self.user.username,
+            'password': 'Old-strong-password-123!',
+        }, format='json')
+        second = self.client.post('/api/token/', {
+            'username': self.user.username,
+            'password': 'Old-strong-password-123!',
+        }, format='json')
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 429)
 
     @override_settings(
         REST_FRAMEWORK={
@@ -911,6 +1213,8 @@ class BookingApiTests(TestCase):
 
     def test_admin_can_delete_trip_without_booking_history(self):
         Payment.objects.create(trip=self.trip, amount='250.00')
+        self.trip.departure_time = timezone.now() - timedelta(days=1)
+        self.trip.save(update_fields=('departure_time',))
         self.client.force_authenticate(self.admin)
 
         response = self.client.delete(f'/api/trips/{self.trip.pk}/')
@@ -918,6 +1222,37 @@ class BookingApiTests(TestCase):
         self.assertEqual(response.status_code, 204, getattr(response, 'data', None))
         self.assertFalse(Trip.objects.filter(pk=self.trip.pk).exists())
         self.assertFalse(Payment.objects.filter(trip=self.trip).exists())
+
+    def test_admin_cannot_delete_trip_before_departure_or_without_departure(self):
+        self.client.force_authenticate(self.admin)
+
+        future_response = self.client.delete(f'/api/trips/{self.trip.pk}/')
+
+        self.assertEqual(future_response.status_code, 400)
+        self.assertTrue(Trip.objects.filter(pk=self.trip.pk).exists())
+
+        self.trip.departure_time = None
+        self.trip.save(update_fields=('departure_time',))
+        unscheduled_response = self.client.delete(f'/api/trips/{self.trip.pk}/')
+
+        self.assertEqual(unscheduled_response.status_code, 400)
+        self.assertTrue(Trip.objects.filter(pk=self.trip.pk).exists())
+
+    def test_admin_cannot_delete_old_trip_with_booking_history(self):
+        booking = Booking.objects.create(
+            passenger=self.passenger,
+            trip=self.trip,
+            total_amount='250.00',
+        )
+        self.trip.departure_time = timezone.now() - timedelta(days=1)
+        self.trip.save(update_fields=('departure_time',))
+        self.client.force_authenticate(self.admin)
+
+        response = self.client.delete(f'/api/trips/{self.trip.pk}/')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(Trip.objects.filter(pk=self.trip.pk).exists())
+        self.assertTrue(Booking.objects.filter(pk=booking.pk, trip=self.trip).exists())
 
     def test_admin_can_filter_bookings_by_passenger(self):
         other_passenger = get_user_model().objects.create_user(

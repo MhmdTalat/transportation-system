@@ -277,10 +277,11 @@ export function Dashboard() {
     if (!data) return
     const escape = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`
     const rows = [
-      ['Date', 'Trips created', 'New registrations'],
+      ['Date', 'Trips created', 'Bookings created', 'New registrations'],
       ...data.charts.trip_volume.map((item, index) => [
         item.date,
         item.count,
+        data.charts.booking_volume[index]?.count ?? 0,
         data.charts.user_registrations[index]?.count ?? 0,
       ]),
     ]
@@ -300,6 +301,10 @@ export function Dashboard() {
   const metrics = useMemo(() => summary ? [
     { key: 'total_users', title: 'Registered users', href: '/users', icon: 'bi-people', description: 'Accounts registered by period end' },
     { key: 'active_users', title: 'Active users', href: '/users', icon: 'bi-person-check', description: 'Active accounts that signed in during this period' },
+    { key: 'bookings_created', title: 'Bookings created', href: '/bookings', icon: 'bi-ticket-perforated', description: 'Bookings created within the selected dates' },
+    { key: 'confirmed_bookings', title: 'Confirmed bookings', href: '/bookings', icon: 'bi-check2-square', description: 'Currently confirmed bookings created in this period' },
+    { key: 'booking_cancellation_rate', title: 'Booking cancellation', href: '/bookings', icon: 'bi-arrow-counterclockwise', description: 'Cancelled ÷ confirmed, cancelled, and completed bookings', percentage: true, percentagePoints: true },
+    { key: 'seat_occupancy_rate', title: 'Seat occupancy', href: '/trips', icon: 'bi-bus-front', description: 'Reserved seats ÷ usable capacity on scheduled and active trips', percentage: true, percentagePoints: true },
     { key: 'trips_created', title: 'Trips created', href: '/trips', icon: 'bi-signpost-2', description: 'Trips created within the selected dates' },
     { key: 'completed_trips', title: 'Completed trips', href: '/trips?status=completed', icon: 'bi-check2-circle', description: 'Currently marked completed' },
     { key: 'completion_rate', title: 'Completion rate', href: '/trips?status=completed', icon: 'bi-graph-up-arrow', description: 'Completed ÷ completed and cancelled', percentage: true, percentagePoints: true },
@@ -443,6 +448,23 @@ export function Dashboard() {
           </section>
 
           <div className="analytics-chart-grid">
+            <ChartPanel eyebrow="BOOKING ACTIVITY" title="Booking volume" description="Bookings created per day in the selected period." href="/bookings" linkLabel="View bookings">
+              {data.charts.booking_volume.some((item) => item.count > 0) ? (
+                <div className="analytics-chart" role="img" aria-label="Line chart of bookings created each day">
+                  <ResponsiveContainer width="100%" height={248}>
+                    <LineChart data={data.charts.booking_volume} margin={{ top: 10, right: 8, left: -18, bottom: 0 }}>
+                      <CartesianGrid stroke="var(--analytics-grid)" strokeDasharray="3 5" vertical={false} />
+                      <XAxis dataKey="date" tickFormatter={(value) => formatDate(String(value))} minTickGap={32} stroke="var(--analytics-muted)" tickLine={false} axisLine={false} />
+                      <YAxis allowDecimals={false} width={38} stroke="var(--analytics-muted)" tickLine={false} axisLine={false} />
+                      <Tooltip contentStyle={{ background: 'var(--analytics-tooltip)', border: '1px solid var(--analytics-border)', borderRadius: 10, color: 'var(--analytics-text)' }} labelFormatter={(value) => formatDate(String(value))} formatter={(value) => [Number(value ?? 0).toLocaleString(), 'Bookings']} />
+                      <Legend wrapperStyle={{ color: 'var(--analytics-muted)', fontSize: 10 }} />
+                      <Line type="monotone" dataKey="count" name="Bookings" stroke="var(--analytics-lime)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : <ChartEmpty message="No bookings were created during this period." />}
+            </ChartPanel>
+
             <ChartPanel eyebrow="TRIP ACTIVITY" title="Trip volume" description="Trips created per day in the selected period." href="/trips" linkLabel="View trips" className="analytics-panel-wide">
               {data.charts.trip_volume.some((item) => item.count > 0) ? (
                 <div className="analytics-chart" role="img" aria-label="Line chart of trips created each day">

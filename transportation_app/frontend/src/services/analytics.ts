@@ -29,6 +29,7 @@ export interface AnalyticsDashboardData {
   summary: Record<string, AnalyticsComparison>
   charts: {
     trip_volume: Array<{ date: string; count: number }>
+    booking_volume: Array<{ date: string; count: number }>
     user_registrations: Array<{ date: string; count: number }>
     user_registrations_by_role: Array<{ role: string; count: number }>
     trip_status: Array<{ status: string; count: number }>

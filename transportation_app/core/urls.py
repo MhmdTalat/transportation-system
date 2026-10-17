@@ -1,13 +1,14 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework_simplejwt.views import TokenObtainPairView
-
 from . import views
 
 
 urlpatterns = [
     path("register/", views.register, name="user-register"),
-    path("token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
+    path("auth/verify-email/", views.verify_email, name="verify-email"),
+    path("auth/resend-verification/", views.resend_email_verification, name="resend-email-verification"),
+    path("token/", views.RateLimitedTokenObtainPairView.as_view(), name="token-obtain-pair"),
+    path("token/refresh/", views.TokenRefreshView.as_view(), name="token-refresh"),
     path("auth/forgot-password/", views.forgot_password, name="forgot-password"),
     path("auth/reset-password/", views.reset_password, name="reset-password"),
     path("me/", views.current_user, name="current-user"),

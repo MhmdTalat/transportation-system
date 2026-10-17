@@ -3026,6 +3026,18 @@
   font-weight: 700;
 }
 
+.auth-resend-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.auth-resend-button:disabled {
+  cursor: default;
+  opacity: .65;
+}
+
 .auth-password-control {
   position: relative;
 }

@@ -12,6 +12,8 @@ export class ApiError extends Error {
   }
 }
 
+let refreshInFlight: Promise<string | null> | null = null
+
 function messageFromBody(body: unknown): { message: string; details: string[] } {
   if (typeof body === 'string') {
     return { message: body, details: [] }
@@ -31,8 +33,11 @@ function messageFromBody(body: unknown): { message: string; details: string[] } 
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = window.localStorage.getItem('transport.access')
+async function fetchWithToken(
+  path: string,
+  init: RequestInit,
+  token: string | null,
+): Promise<Response> {
   const headers = new Headers(init.headers)
   headers.set('Accept', 'application/json')
   if (init.body) {
@@ -42,13 +47,63 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers.set('Authorization', `Bearer ${token}`)
   }
 
-  let response: Response
   try {
-    response = await fetch(path, { ...init, headers })
+    return await fetch(path, { ...init, headers })
   } catch {
     throw new ApiError(0, 'The API cannot be reached. Check that Django is running.')
   }
+}
 
+async function refreshAccessToken(): Promise<string | null> {
+  if (refreshInFlight) return refreshInFlight
+  const refreshToken = window.localStorage.getItem('transport.refresh')
+  if (!refreshToken) return null
+
+  refreshInFlight = (async () => {
+    let response: Response
+    try {
+      response = await fetch('/api/token/refresh/', {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh: refreshToken }),
+      })
+    } catch {
+      throw new ApiError(0, 'The API cannot be reached. Check that Django is running.')
+    }
+    if (!response.ok) return null
+
+    const payload: unknown = await response.json()
+    if (!payload || typeof payload !== 'object' || !('access' in payload) || typeof payload.access !== 'string') {
+      throw new ApiError(response.status, 'The API returned an invalid token refresh response.')
+    }
+    window.localStorage.setItem('transport.access', payload.access)
+    if ('refresh' in payload && typeof payload.refresh === 'string') {
+      window.localStorage.setItem('transport.refresh', payload.refresh)
+    }
+    return payload.access
+  })()
+
+  try {
+    return await refreshInFlight
+  } finally {
+    refreshInFlight = null
+  }
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = window.localStorage.getItem('transport.access')
+  let response = await fetchWithToken(path, init, token)
+  if (
+    response.status === 401
+    && token
+    && path !== '/api/token/'
+    && path !== '/api/token/refresh/'
+  ) {
+    const refreshedToken = await refreshAccessToken()
+    if (refreshedToken) {
+      response = await fetchWithToken(path, init, refreshedToken)
+    }
+  }
   if (response.status === 204) {
     return undefined as T
   }
@@ -59,6 +114,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!response.ok) {
     if (response.status === 401) {
       window.localStorage.removeItem('transport.access')
+      window.localStorage.removeItem('transport.refresh')
       window.dispatchEvent(new Event('transport:unauthorized'))
     }
     const error = messageFromBody(body)
@@ -95,6 +151,20 @@ export async function registerAccount(payload: {
   await request<unknown>('/api/register/', {
     method: 'POST',
     body: JSON.stringify(payload),
+  })
+}
+
+export async function verifyEmail(email: string, code: string): Promise<void> {
+  await request<unknown>('/api/auth/verify-email/', {
+    method: 'POST',
+    body: JSON.stringify({ email, code }),
+  })
+}
+
+export async function resendEmailVerification(email: string): Promise<void> {
+  await request<unknown>('/api/auth/resend-verification/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   })
 }
 

@@ -21,12 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7+y$xqq$4sjqhlzvj3tvz2x1-zzyewhb%%$)l_zc27!qy4qq3n'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 # =========================================================
 # ENVIRONMENT
 # =========================================================
@@ -60,7 +54,7 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list(
     'ALLOWED_HOSTS',
-    default=['*']
+    default=['localhost', '127.0.0.1']
 )
 
 CSRF_TRUSTED_ORIGINS = env.list(
@@ -97,6 +91,10 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_THROTTLE_RATES': {
+        'login': '5/minute',
+        'registration': '5/hour',
+        'email_verification': '10/hour',
+        'email_verification_resend': '5/hour',
         'password_reset_request': '5/hour',
         'password_reset_submit': '10/hour',
     },
@@ -107,23 +105,69 @@ SIMPLE_JWT = {
 }
 
 PASSWORD_RESET_TIMEOUT = env.int('PASSWORD_RESET_TIMEOUT', default=1800)
+EMAIL_VERIFICATION_TIMEOUT = env.int('EMAIL_VERIFICATION_TIMEOUT', default=600)
 FRONTEND_BASE_URL = env('FRONTEND_BASE_URL', default='http://127.0.0.1:5173')
 
 EMAIL_CONFIG = env.email_url('EMAIL_URL', default='consolemail://')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 EMAIL_BACKEND_PATH = EMAIL_CONFIG.pop('EMAIL_BACKEND')
 EMAIL_OPTIONS = {
-    name.removeprefix('EMAIL_').lower(): value
-    for name, value in EMAIL_CONFIG.items()
-    if name.startswith('EMAIL_') and value not in (None, '')
+    **{
+        name.removeprefix('EMAIL_').lower(): value
+        for name, value in EMAIL_CONFIG.items()
+        if name.startswith('EMAIL_') and value not in (None, '')
+    },
+    **{
+        name.lower(): value
+        for name, value in EMAIL_CONFIG.get('OPTIONS', {}).items()
+        if value not in (None, '')
+    },
 }
-EMAIL_OPTIONS.update({
-    name.lower(): value
-    for name, value in EMAIL_CONFIG.get('OPTIONS', {}).items()
-})
 
 if not DEBUG and not FRONTEND_BASE_URL.startswith('https://'):
     raise ValueError('FRONTEND_BASE_URL must use HTTPS when DEBUG is disabled.')
+
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=not DEBUG)
+SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=0)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+
+def _validate_production_configuration(
+    debug,
+    secret_key,
+    allowed_hosts,
+    ssl_redirect,
+    hsts_seconds,
+    session_cookie_secure,
+    csrf_cookie_secure,
+):
+    if debug:
+        return
+    if (
+        len(secret_key) < 50
+        or len(set(secret_key)) < 5
+        or secret_key.startswith('django-insecure-')
+    ):
+        raise ValueError('SECRET_KEY must be a strong, unique key when DEBUG is disabled.')
+    if not allowed_hosts or '*' in allowed_hosts:
+        raise ValueError('ALLOWED_HOSTS must list the production hostnames when DEBUG is disabled.')
+    if not ssl_redirect or hsts_seconds <= 0:
+        raise ValueError('HTTPS redirect and HSTS must be enabled when DEBUG is disabled.')
+    if not session_cookie_secure or not csrf_cookie_secure:
+        raise ValueError('Secure session and CSRF cookies are required when DEBUG is disabled.')
+
+
+_validate_production_configuration(
+    DEBUG,
+    SECRET_KEY,
+    ALLOWED_HOSTS,
+    SECURE_SSL_REDIRECT,
+    SECURE_HSTS_SECONDS,
+    SESSION_COOKIE_SECURE,
+    CSRF_COOKIE_SECURE,
+)
 
 CACHES = {
     'default': env.cache_url('CACHE_URL', default='locmemcache://'),

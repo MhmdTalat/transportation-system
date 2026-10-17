@@ -59,11 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userLoading,
       userError,
       signIn: (nextToken) => {
-        window.localStorage.setItem('transport.access', nextToken)
-        setToken(nextToken)
+        window.localStorage.setItem('transport.access', nextToken.access)
+        window.localStorage.setItem('transport.refresh', nextToken.refresh)
+        setToken(nextToken.access)
       },
       signOut: () => {
         window.localStorage.removeItem('transport.access')
+        window.localStorage.removeItem('transport.refresh')
         setToken(null)
       },
     }),

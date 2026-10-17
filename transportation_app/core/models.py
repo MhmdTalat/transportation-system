@@ -14,6 +14,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='passenger')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     profile_photo_url = models.URLField(blank=True, null=True)
+    email_verified = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -37,6 +38,18 @@ class Station(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class EmailVerificationCode(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='email_verification_code',
+    )
+    code_hash = models.CharField(max_length=128)
+    expires_at = models.DateTimeField()
+    failed_attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Route(models.Model):
@@ -229,7 +242,7 @@ class Payment(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='cash')
-    status = models.CharField(max_length=20, default='paid')
+    status = models.CharField(max_length=20, default='pending')
     paid_at = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

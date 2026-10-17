@@ -6,7 +6,7 @@ from django.db.models.functions import ExtractHour, ExtractWeekDay, TruncDate
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Station, Trip
+from .models import Booking, Station, Trip
 
 
 class AnalyticsFilterSerializer(serializers.Serializer):
@@ -100,6 +100,25 @@ def _trip_queryset(start, end, filters):
     return queryset.order_by()
 
 
+def _booking_queryset(start, end, filters):
+    queryset = Booking.objects.filter(created_at__gte=start, created_at__lt=end)
+    if filters.get('status'):
+        queryset = queryset.filter(trip__status=filters['status'])
+    if filters.get('station'):
+        queryset = queryset.filter(
+            Q(trip__start_station_id=filters['station'])
+            | Q(trip__destination_station_id=filters['station'])
+        )
+    role = filters.get('role')
+    if role == 'passenger':
+        queryset = queryset.filter(passenger__role=role)
+    elif role == 'driver':
+        queryset = queryset.filter(trip__driver__user__role=role)
+    elif role:
+        queryset = queryset.filter(trip__created_by__role=role)
+    return queryset.order_by()
+
+
 def _trip_counts(queryset):
     return queryset.aggregate(
         trips_created=Count('pk', distinct=True),
@@ -124,6 +143,55 @@ def _trip_counts(queryset):
             distinct=True,
         ),
     )
+
+
+def _booking_counts(queryset):
+    return queryset.aggregate(
+        bookings_created=Count('pk', distinct=True),
+        confirmed_bookings=Count(
+            'pk',
+            filter=Q(status='confirmed'),
+            distinct=True,
+        ),
+        cancelled_bookings=Count(
+            'pk',
+            filter=Q(status='cancelled'),
+            distinct=True,
+        ),
+        completed_bookings=Count(
+            'pk',
+            filter=Q(status='completed'),
+            distinct=True,
+        ),
+    )
+
+
+def _seat_occupancy(queryset):
+    trips = queryset.filter(
+        status__in=('scheduled', 'in_progress'),
+        vehicle__isnull=False,
+    ).values(
+        'pk',
+        'vehicle__capacity',
+        'vehicle__disabled_seats',
+    ).annotate(
+        reserved=Count(
+            'booked_seats',
+            distinct=True,
+            filter=Q(booked_seats__is_active=True),
+        ),
+    )
+    reserved_seats = 0
+    available_capacity = 0
+    for trip in trips:
+        capacity = trip['vehicle__capacity']
+        disabled_seats = {
+            seat for seat in (trip['vehicle__disabled_seats'] or [])
+            if isinstance(seat, int) and 1 <= seat <= capacity
+        }
+        reserved_seats += trip['reserved']
+        available_capacity += capacity - len(disabled_seats)
+    return _rate(reserved_seats, available_capacity)
 
 
 def _user_counts(start, end, role):
@@ -216,8 +284,12 @@ def build_analytics_dashboard(query_params):
 
     current_trips = _trip_queryset(start, end, filters)
     previous_trips = _trip_queryset(previous_start, previous_end, filters)
+    current_bookings = _booking_queryset(start, end, filters)
+    previous_bookings = _booking_queryset(previous_start, previous_end, filters)
     current_trip_counts = _trip_counts(current_trips)
     previous_trip_counts = _trip_counts(previous_trips)
+    current_booking_counts = _booking_counts(current_bookings)
+    previous_booking_counts = _booking_counts(previous_bookings)
     role = filters.get('role')
     current_users = _user_counts(start, end, role)
     previous_users = _user_counts(previous_start, start, role)
@@ -239,6 +311,29 @@ def build_analytics_dashboard(query_params):
             current_trip_counts[key],
             previous_trip_counts[key],
         )
+    for key in current_booking_counts:
+        summary[key] = _comparison(
+            current_booking_counts[key],
+            previous_booking_counts[key],
+        )
+    current_booking_outcomes = (
+        current_booking_counts['confirmed_bookings']
+        + current_booking_counts['cancelled_bookings']
+        + current_booking_counts['completed_bookings']
+    )
+    previous_booking_outcomes = (
+        previous_booking_counts['confirmed_bookings']
+        + previous_booking_counts['cancelled_bookings']
+        + previous_booking_counts['completed_bookings']
+    )
+    summary['booking_cancellation_rate'] = _comparison(
+        _rate(current_booking_counts['cancelled_bookings'], current_booking_outcomes),
+        _rate(previous_booking_counts['cancelled_bookings'], previous_booking_outcomes),
+    )
+    summary['seat_occupancy_rate'] = _comparison(
+        _seat_occupancy(current_trips),
+        _seat_occupancy(previous_trips),
+    )
     summary['completion_rate'] = _comparison(
         _rate(current_trip_counts['completed_trips'], current_eligible),
         _rate(previous_trip_counts['completed_trips'], previous_eligible),
@@ -260,6 +355,12 @@ def build_analytics_dashboard(query_params):
     }
 
     trip_series = _timeseries(current_trips, start_date, end_date, 'created_at')
+    booking_series = _timeseries(
+        current_bookings,
+        start_date,
+        end_date,
+        'created_at',
+    )
     user_queryset = get_user_model().objects.filter(
         created_at__gte=start,
         created_at__lt=end,
@@ -313,6 +414,7 @@ def build_analytics_dashboard(query_params):
         'summary': summary,
         'charts': {
             'trip_volume': trip_series,
+            'booking_volume': booking_series,
             'user_registrations': registrations_series,
             'user_registrations_by_role': [
                 {'role': role, 'count': registrations_by_role.get(role, 0)}
@@ -341,6 +443,13 @@ def build_analytics_dashboard(query_params):
             'completion_rate': 'Completed trips divided by completed plus cancelled trips created in the selected date range.',
             'cancellation_rate': 'Cancelled trips divided by completed plus cancelled trips created in the selected date range.',
             'trip_volume': 'Trip creation date, not scheduled departure date.',
+            'booking_volume': 'Booking creation date, filtered by the selected trip, station, and role criteria.',
+            'bookings_created': 'Bookings created within the selected date range.',
+            'booking_cancellation_rate': 'Cancelled bookings divided by bookings with a confirmed, cancelled, or completed status.',
+            'seat_occupancy_rate': 'Active seats reserved on scheduled or in-progress trips divided by their usable configured vehicle capacity.',
+            'confirmed_bookings': 'Bookings currently confirmed among bookings created within the selected date range.',
+            'cancelled_bookings': 'Bookings currently cancelled among bookings created within the selected date range.',
+            'completed_bookings': 'Bookings currently completed among bookings created within the selected date range.',
             'completed_route_distance_km_estimate': 'Sum of configured route distances for completed trips; this is planned route distance, not GPS-measured distance.',
             'user_role_filter': 'Filters user KPIs by role and trip records to trips associated with that driver/passenger or created by that role.',
             'station_filter': 'Includes trips whose selected origin or destination matches the station.',

@@ -1,12 +1,14 @@
 import logging
+import secrets
 from urllib.parse import urlencode, urlsplit
 
 from datetime import date, timedelta
 from decimal import Decimal
 
 from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.tokens import default_token_generator
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, transaction
 from django.db.models import Count, F, Prefetch, ProtectedError, Q, QuerySet
@@ -18,12 +20,15 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.exceptions import APIException, NotFound, PermissionDenied
+from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound, PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework.settings import api_settings
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .dependencies import get_trip_service
 from .analytics import build_analytics_dashboard
@@ -31,6 +36,7 @@ from .models import (
     Booking,
     BookingSeat,
     Driver,
+    EmailVerificationCode,
     FareRule,
     Notification,
     Payment,
@@ -47,6 +53,8 @@ from .serializers import (
     DriverSerializer,
     FareRuleSerializer,
     ForgotPasswordSerializer,
+    EmailVerificationRequestSerializer,
+    EmailVerificationSerializer,
     NotificationSerializer,
     PaymentSerializer,
     RouteSerializer,
@@ -70,12 +78,59 @@ PASSWORD_RESET_GENERIC_RESPONSE = (
 )
 
 
-class PasswordResetRequestThrottle(ScopedRateThrottle):
+class ConfiguredAnonRateThrottle(AnonRateThrottle):
+    def get_rate(self):
+        try:
+            return api_settings.DEFAULT_THROTTLE_RATES[self.scope]
+        except KeyError as error:
+            raise ImproperlyConfigured(
+                f'No default throttle rate set for {self.scope!r}.'
+            ) from error
+
+
+class PasswordResetRequestThrottle(ConfiguredAnonRateThrottle):
     scope = 'password_reset_request'
 
 
-class PasswordResetSubmitThrottle(ScopedRateThrottle):
+class PasswordResetSubmitThrottle(ConfiguredAnonRateThrottle):
     scope = 'password_reset_submit'
+
+
+class LoginThrottle(ConfiguredAnonRateThrottle):
+    scope = 'login'
+
+
+class RegistrationThrottle(ConfiguredAnonRateThrottle):
+    scope = 'registration'
+
+
+class EmailVerificationThrottle(ConfiguredAnonRateThrottle):
+    scope = 'email_verification'
+
+
+class EmailVerificationResendThrottle(ConfiguredAnonRateThrottle):
+    scope = 'email_verification_resend'
+
+
+class EmailDeliveryUnavailable(APIException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_code = 'email_delivery_unavailable'
+
+
+class EmailVerifiedTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if not self.user.email_verified:
+            raise AuthenticationFailed(
+                'Verify your email address before signing in.',
+                code='email_not_verified',
+            )
+        return data
+
+
+class RateLimitedTokenObtainPairView(TokenObtainPairView):
+    throttle_classes = (LoginThrottle,)
+    serializer_class = EmailVerifiedTokenObtainPairSerializer
 from .services.trip_service import StationsNotFoundError
 from .services.notification_service import create_due_trip_reminders
 
@@ -286,11 +341,116 @@ def api_root(request: Request, format: str | None = None) -> Response:
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([RegistrationThrottle])
 def register(request: Request, format: str | None = None) -> Response:
     serializer = UserRegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
-    return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+    try:
+        _issue_email_verification_code(user)
+    except Exception as error:
+        logger.exception('Registration verification email delivery failed.')
+        raise EmailDeliveryUnavailable(
+            'The account was created, but the verification email could not be sent. '
+            'Request a new code to continue.'
+        ) from error
+    return Response(
+        {'detail': 'A verification code was sent to your email address.'},
+        status=status.HTTP_201_CREATED,
+    )
+
+
+def _issue_email_verification_code(user: User) -> None:
+    code = f'{secrets.randbelow(1_000_000):06d}'
+    EmailVerificationCode.objects.update_or_create(
+        user=user,
+        defaults={
+            'code_hash': make_password(code),
+            'expires_at': timezone.now() + timedelta(
+                seconds=settings.EMAIL_VERIFICATION_TIMEOUT
+            ),
+            'failed_attempts': 0,
+        },
+    )
+    message = EmailMultiAlternatives(
+        subject='Verify Your Transportation Platform Email',
+        body=(
+            f'Hello {user.first_name or user.username},\n\n'
+            f'Your email verification code is {code}. '
+            f'It expires in {max(1, settings.EMAIL_VERIFICATION_TIMEOUT // 60)} minutes.'
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+    if message.send(fail_silently=False) != 1:
+        raise RuntimeError('Email verification delivery did not complete.')
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@throttle_classes([EmailVerificationThrottle])
+def verify_email(request: Request, format: str | None = None) -> Response:
+    serializer = EmailVerificationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data['email']
+    code = serializer.validated_data['code']
+    invalid_response = Response(
+        {'detail': 'The verification code is invalid or has expired. Request a new code.'},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(
+            email__iexact=email,
+            email_verified=False,
+        ).first()
+        if user is None:
+            return invalid_response
+
+        verification = EmailVerificationCode.objects.select_for_update().filter(
+            user=user,
+        ).first()
+        if verification is None:
+            return invalid_response
+        if (
+            verification.expires_at <= timezone.now()
+            or verification.failed_attempts >= 5
+        ):
+            verification.delete()
+            return invalid_response
+        if not check_password(code, verification.code_hash):
+            verification.failed_attempts += 1
+            verification.save(update_fields=('failed_attempts',))
+            return invalid_response
+
+        user.email_verified = True
+        user.save(update_fields=('email_verified',))
+        verification.delete()
+
+    return Response({'detail': 'Email verified. You can now sign in.'})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@throttle_classes([EmailVerificationResendThrottle])
+def resend_email_verification(request: Request, format: str | None = None) -> Response:
+    serializer = EmailVerificationRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(
+        email__iexact=serializer.validated_data['email'],
+        email_verified=False,
+    ).first()
+    if user:
+        try:
+            _issue_email_verification_code(user)
+        except Exception as error:
+            logger.exception('Registration verification email delivery failed.')
+            raise EmailDeliveryUnavailable(
+                'The verification email could not be sent. Please try again later.'
+            ) from error
+    return Response({
+        'detail': 'If verification is still required, a new code has been sent.'
+    })
 
 
 def _password_reset_url(uid: str, token: str) -> str:
@@ -354,7 +514,7 @@ def forgot_password(request: Request) -> Response:
         try:
             _send_password_reset_email(user, uid, token)
         except Exception:
-            logger.error('Password reset email delivery failed.')
+            logger.exception('Password reset email delivery failed.')
 
     return Response({'detail': PASSWORD_RESET_GENERIC_RESPONSE})
 
@@ -831,6 +991,10 @@ def trip_detail(
                     'status': 'Trips must be started before they can be completed.'
                 })
         if request.method == 'DELETE':
+            if not trip.departure_time or trip.departure_time > timezone.now():
+                raise serializers.ValidationError(
+                    'Only trips whose departure time has passed can be deleted.'
+                )
             if trip.bookings.exists():
                 raise serializers.ValidationError('Trips with booking history cannot be deleted.')
             trip.delete()

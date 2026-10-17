@@ -2,6 +2,8 @@ from collections.abc import Iterable, Mapping
 from typing import Any, Protocol
 
 from django.db.models import Prefetch, QuerySet
+from django.db.models import Q
+from django.utils import timezone
 
 from .models import FareRule, Payment, Route, RouteStation, Station, Trip
 
@@ -29,6 +31,7 @@ class TripRepository:
         start_station: Station,
         destination_station: Station,
     ) -> QuerySet[Route]:
+        now = timezone.now()
         return (
             Route.objects.filter(route_stations__station=start_station)
             .filter(route_stations__station=destination_station)
@@ -42,7 +45,12 @@ class TripRepository:
                 ),
                 Prefetch(
                     "fare_rules",
-                    queryset=FareRule.objects.filter(is_active=True).order_by("pk"),
+                    queryset=FareRule.objects.filter(
+                        is_active=True,
+                    ).filter(
+                        Q(valid_from__isnull=True) | Q(valid_from__lte=now),
+                        Q(valid_to__isnull=True) | Q(valid_to__gte=now),
+                    ).order_by("pk"),
                     to_attr="_active_fare_rules",
                 ),
             )
@@ -58,5 +66,6 @@ class TripRepository:
             trip=trip,
             amount=trip.fare_amount,
             payment_method="cash",
+            status="pending",
         )
         return trip
