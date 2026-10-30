@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type SeatMapState = 'available' | 'booked' | 'disabled'
 
@@ -10,11 +11,11 @@ export interface VehicleSeatMapProps {
   onSeatToggle: (seat: number) => void
 }
 
-function getSeatLabel(seat: number, state: SeatMapState, selected: boolean): string {
-  if (selected) return `Seat ${seat}, selected`
-  if (state === 'booked') return `Seat ${seat}, booked, unavailable`
-  if (state === 'disabled') return `Seat ${seat}, blocked, unavailable`
-  return `Seat ${seat}, available`
+function getSeatLabel(seat: number, state: SeatMapState, selected: boolean, t: (key: string, options?: { seat: number }) => string): string {
+  if (selected) return t('Seat {{seat}}, selected', { seat })
+  if (state === 'booked') return t('Seat {{seat}}, booked, unavailable', { seat })
+  if (state === 'disabled') return t('Seat {{seat}}, blocked, unavailable', { seat })
+  return t('Seat {{seat}}, available', { seat })
 }
 
 export function VehicleSeatMap({
@@ -24,6 +25,7 @@ export function VehicleSeatMap({
   disabled = false,
   onSeatToggle,
 }: VehicleSeatMapProps) {
+  const { t } = useTranslation()
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({})
 
   const orderedSeats = useMemo(
@@ -64,9 +66,9 @@ export function VehicleSeatMap({
   }
 
   return (
-    <div className="vehicle-seat-layout" role="grid" aria-label="Vehicle seat map">
+    <div className="vehicle-seat-layout" role="grid" aria-label={t('Vehicle seat map')}>
       <div className="seat-driver" aria-hidden="true">
-        <i className="bi bi-steering-wheel" /> DRIVER
+        <i className="bi bi-steering-wheel" /> {t('DRIVER')}
       </div>
       {layout.map((row, rowIndex) => (
         <div className="vehicle-seat-row" role="row" key={`row-${rowIndex}`}>
@@ -78,7 +80,7 @@ export function VehicleSeatMap({
             const state = seatStates[seat] ?? 'available'
             const selected = selectedSeats.includes(seat)
             const unavailable = state !== 'available'
-            const seatLabel = getSeatLabel(seat, state, selected)
+            const seatLabel = getSeatLabel(seat, state, selected, t)
 
             return (
               <button
@@ -93,7 +95,7 @@ export function VehicleSeatMap({
                 aria-label={seatLabel}
                 aria-pressed={selected}
                 aria-disabled={unavailable || disabled}
-                title={state === 'booked' ? `Seat ${seat} is already booked.` : state === 'disabled' ? `Seat ${seat} is blocked.` : `Seat ${seat}`}
+                title={state === 'booked' ? t('Seat {{seat}} is already booked.', { seat }) : state === 'disabled' ? t('Seat {{seat}} is blocked.', { seat }) : t('Seat {{seat}}', { seat })}
                 onClick={() => onSeatToggle(seat)}
                 onKeyDown={(event) => {
                   if (event.key === 'ArrowLeft') { event.preventDefault(); focusSeat(seat, 'left') }

@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RadarPulseBackground > matches a snapshot when paused 1`] = `
+<div
+  aria-hidden="true"
+  class="radar-pulse-background is-paused"
+  data-testid="radar-pulse-background"
+  style="--radar-color: var(--color-accent); --radar-opacity: 0.75; pointer-events: none;"
+>
+  <span
+    class="radar-ring radar-ring-a"
+  />
+  <span
+    class="radar-ring radar-ring-b"
+  />
+  <span
+    class="radar-ring radar-ring-c"
+  />
+  <span
+    class="radar-dot radar-dot-a"
+  />
+  <span
+    class="radar-dot radar-dot-b"
+  />
+  <span
+    class="radar-dot radar-dot-c"
+  />
+  <span
+    class="radar-pin"
+  >
+    <i
+      class="bi bi-geo-alt-fill"
+    />
+  </span>
+</div>
+`;

@@ -5,6 +5,69 @@ body,
   background: var(--color-background);
 }
 
+.page-layout {
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.page-layout > * {
+  min-width: 0;
+}
+
+.page-layout .container-fluid {
+  width: 100%;
+  max-width: 100%;
+  padding-inline: 0;
+}
+
+.page-layout .style-guide-page,
+.page-layout .analytics-dashboard {
+  width: 100%;
+  max-width: var(--content-max-width);
+}
+
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.auth-form-side {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-block: calc(var(--header-height) + env(safe-area-inset-top));
+  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom));
+}
+
+.btn,
+.form-control,
+.form-select {
+  min-height: var(--control-height);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card,
+.panel,
+.table-card,
+.booking-history-card,
+.passenger-trip-card,
+.driver-assignment,
+.user-profile-card {
+  align-self: stretch;
+}
+
+.page-layout img,
+.page-layout video {
+  max-width: 100%;
+  height: auto;
+}
+
 ::selection {
   color: var(--color-text-on-accent);
   background: var(--color-accent);
@@ -1725,7 +1788,51 @@ body,
   font-size: var(--font-size-metadata);
 }
 
+.auth-form-side {
+  position: relative;
+}
+
+html[dir="rtl"] .sidebar {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  border-right: 0;
+  border-left: 1px solid var(--color-border);
+}
+
+html[dir="rtl"] .workspace {
+  margin-right: 258px;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .analytics-sidebar-collapsed .workspace {
+  margin-right: 82px;
+  margin-left: 0;
+}
+
+html[dir="rtl"] .language-switcher select {
+  padding-inline: 2px 18px;
+}
+
+html[dir="rtl"] .bi-chevron-right,
+html[dir="rtl"] .bi-arrow-right,
+html[dir="rtl"] .bi-box-arrow-left {
+  transform: scaleX(-1);
+}
+
 @media (max-width: 900px) {
+  html[dir="rtl"] .sidebar {
+    transform: translateX(105%);
+  }
+
+  html[dir="rtl"] .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  html[dir="rtl"] .workspace,
+  html[dir="rtl"] .analytics-sidebar-collapsed .workspace {
+    margin-right: 0;
+  }
+
   .auth-page {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1759,8 +1866,9 @@ body,
   }
 
   .topbar {
-    height: 60px;
-    padding: 0 var(--space-4);
+    height: var(--header-height);
+    min-height: var(--header-height);
+    padding-inline: var(--screen-padding);
   }
 
   .mobile-menu {

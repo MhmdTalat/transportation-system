@@ -1,12 +1,19 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 from .models import (
+    AuditLog,
     Booking,
     BookingSeat,
+    Complaint,
     Driver,
+    DriverDocument,
+    EmailOutbox,
     FareRule,
     Notification,
+    OperationalSetting,
     Payment,
+    PrivateRide,
     Route,
     RouteStation,
     Station,
@@ -21,8 +28,18 @@ admin.site.index_title = 'Administration'
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(DjangoUserAdmin):
     list_display = ('username', 'email', 'role', 'phone_number', 'created_at')
+    fieldsets = DjangoUserAdmin.fieldsets + (
+        ('Wasalni account', {
+            'fields': ('role', 'phone_number', 'profile_photo_url', 'email_verified'),
+        }),
+    )
+    add_fieldsets = DjangoUserAdmin.add_fieldsets + (
+        ('Wasalni account', {
+            'fields': ('role', 'phone_number', 'profile_photo_url', 'email_verified'),
+        }),
+    )
 
 
 @admin.register(Station)
@@ -81,3 +98,79 @@ class BookingSeatAdmin(admin.ModelAdmin):
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'booking', 'title', 'notification_type', 'is_read', 'created_at')
+
+
+@admin.register(DriverDocument)
+class DriverDocumentAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'document_type', 'status', 'reviewed_by', 'created_at')
+    list_filter = ('document_type', 'status')
+    fields = (
+        'driver',
+        'document_type',
+        'original_filename',
+        'status',
+        'reviewed_by',
+        'reviewed_at',
+        'rejection_note',
+        'created_at',
+    )
+    readonly_fields = fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PrivateRide)
+class PrivateRideAdmin(admin.ModelAdmin):
+    list_display = ('passenger', 'driver', 'status', 'created_at')
+    list_filter = ('status',)
+    readonly_fields = ('passenger', 'driver', 'created_at', 'updated_at')
+
+
+@admin.register(Complaint)
+class ComplaintAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'reporter', 'status', 'assigned_to', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('subject', 'description', 'reporter__email')
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ('action', 'object_type', 'object_id', 'actor', 'created_at')
+    list_filter = ('action', 'object_type')
+    readonly_fields = (
+        'actor',
+        'action',
+        'object_type',
+        'object_id',
+        'ip_address',
+        'details',
+        'created_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(EmailOutbox)
+class EmailOutboxAdmin(admin.ModelAdmin):
+    list_display = ('recipient_email', 'subject', 'status', 'attempts', 'available_at')
+    list_filter = ('status',)
+    readonly_fields = ('recipient_email', 'subject', 'body', 'attempts', 'sent_at', 'created_at')
+
+
+@admin.register(OperationalSetting)
+class OperationalSettingAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value', 'updated_by', 'updated_at')

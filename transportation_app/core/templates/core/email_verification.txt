@@ -1,0 +1,22 @@
+{% load i18n %}
+{% if LANGUAGE_CODE == "ar" %}
+مرحبًا {{ name }}،
+
+رمز التحقق من بريدك الإلكتروني في وصلني هو:
+{{ code }}
+
+ستنتهي صلاحية هذا الرمز خلال 5 دقائق. لا تشاركه مع أي شخص.
+إذا لم تطلب إنشاء هذا الحساب، يمكنك تجاهل هذه الرسالة.
+
+فريق وصلني
+{% else %}
+Hello {{ name }},
+
+Your Wasalni email verification code is:
+{{ code }}
+
+This code expires in 5 minutes. Do not share it with anyone.
+If you did not request this account, you can ignore this message.
+
+The Wasalni team
+{% endif %}

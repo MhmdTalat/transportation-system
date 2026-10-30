@@ -1,0 +1,981 @@
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #141b1a;
+  --color-surface: #1b2422;
+  --color-surface-elevated: #202b28;
+  --color-accent: #65b5a7;
+  --color-accent-hover: #82c8bb;
+  --color-accent-pressed: #4a9d8e;
+  --color-accent-tint: #233a35;
+  --color-secondary: #e6eeeb;
+  --color-secondary-surface: #202a28;
+  --color-muted-blue: #9aaca7;
+  --color-text-primary: #e7efec;
+  --color-text-secondary: #bac8c3;
+  --color-text-muted: #93a39e;
+  --color-text-on-accent: #10211e;
+  --color-border: #34413d;
+  --color-divider: #2b3733;
+  --color-focus-ring: rgb(101 181 167 / 34%);
+  --color-success: #69c295;
+  --color-success-tint: rgb(105 194 149 / 12%);
+  --color-warning: #e6b45e;
+  --color-warning-tint: rgb(230 180 94 / 12%);
+  --color-danger: #ef8582;
+  --color-danger-tint: rgb(239 133 130 / 12%);
+  --color-information: #79bfb3;
+  --color-information-tint: rgb(121 191 179 / 12%);
+  --color-overlay: rgb(0 0 0 / 62%);
+  --color-overlay-strong: rgb(0 0 0 / 76%);
+  --color-surface-glass: rgb(27 36 34 / 96%);
+  --color-surface-glass-strong: rgb(27 36 34 / 98%);
+  --color-focus-glow: rgb(101 181 167 / 16%);
+  --color-accent-grid: rgb(101 181 167 / 8%);
+  --color-map-grid: rgb(101 181 167 / 5%);
+  --color-map-street: rgb(154 172 167 / 12%);
+  --color-map-street-border: rgb(154 172 167 / 18%);
+  --color-route-grid: rgb(154 172 167 / 14%);
+  --color-route-grid-highlight: rgb(154 172 167 / 10%);
+  --color-white: #ffffff;
+  --brand-primary: var(--color-accent);
+  --brand-primary-hover: var(--color-accent-hover);
+  --brand-primary-pressed: var(--color-accent-pressed);
+  --brand-tint: var(--color-accent-tint);
+  --ink: var(--color-text-primary);
+  --muted: var(--color-text-secondary);
+  --line: var(--color-border);
+  --canvas: var(--color-background);
+  --blue: var(--color-accent);
+  --navy: var(--color-surface);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --surface-page: var(--color-background);
+  --surface-panel: var(--color-surface);
+  --border-color: var(--color-border);
+  --seat-available-fill: #24312e;
+  --seat-available-border: #44524e;
+  --seat-booked-fill: #586762;
+  --seat-booked-text: #ffffff;
+  --seat-selected-fill: var(--color-accent);
+  --seat-selected-text: var(--color-text-on-accent);
+  --seat-held-fill: #997438;
+  --seat-held-text: #ffffff;
+  --seat-blocked-fill: #27322f;
+  --seat-blocked-text: #bac8c3;
+  --danger: var(--color-danger);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 22%);
+  --shadow-elevated: 0 8px 20px rgb(0 0 0 / 32%);
+  --shadow-bar: 0 -2px 10px rgb(0 0 0 / 26%);
+  --shadow-sidebar: 1px 0 3px rgb(0 0 0 / 20%);
+  --bs-body-color: var(--color-text-primary);
+  --bs-body-bg: var(--color-background);
+  --bs-emphasis-color: var(--color-text-primary);
+  --bs-secondary-color: var(--color-text-secondary);
+  --bs-tertiary-color: var(--color-text-muted);
+  --bs-border-color: var(--color-border);
+  --bs-primary: var(--color-accent);
+  --bs-link-color: var(--color-accent);
+  --bs-link-hover-color: var(--color-accent-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-background: #141b1a;
+    --color-surface: #1b2422;
+    --color-surface-elevated: #202b28;
+    --color-accent: #65b5a7;
+    --color-accent-hover: #82c8bb;
+    --color-accent-pressed: #4a9d8e;
+    --color-accent-tint: #233a35;
+    --color-secondary: #e6eeeb;
+    --color-secondary-surface: #202a28;
+    --color-muted-blue: #9aaca7;
+    --color-text-primary: #e7efec;
+    --color-text-secondary: #bac8c3;
+    --color-text-muted: #93a39e;
+    --color-text-on-accent: #10211e;
+    --color-border: #34413d;
+    --color-divider: #2b3733;
+    --color-focus-ring: rgb(101 181 167 / 34%);
+    --color-success: #69c295;
+    --color-success-tint: rgb(105 194 149 / 12%);
+    --color-warning: #e6b45e;
+    --color-warning-tint: rgb(230 180 94 / 12%);
+    --color-danger: #ef8582;
+    --color-danger-tint: rgb(239 133 130 / 12%);
+    --color-information: #79bfb3;
+    --color-information-tint: rgb(121 191 179 / 12%);
+    --color-overlay: rgb(0 0 0 / 62%);
+    --color-overlay-strong: rgb(0 0 0 / 76%);
+    --color-surface-glass: rgb(27 36 34 / 96%);
+    --color-surface-glass-strong: rgb(27 36 34 / 98%);
+    --color-focus-glow: rgb(101 181 167 / 16%);
+    --color-accent-grid: rgb(101 181 167 / 8%);
+    --color-map-grid: rgb(101 181 167 / 5%);
+    --color-map-street: rgb(154 172 167 / 12%);
+    --color-map-street-border: rgb(154 172 167 / 18%);
+    --color-route-grid: rgb(154 172 167 / 14%);
+    --color-route-grid-highlight: rgb(154 172 167 / 10%);
+    --color-white: #ffffff;
+    --brand-primary: var(--color-accent);
+    --brand-primary-hover: var(--color-accent-hover);
+    --brand-primary-pressed: var(--color-accent-pressed);
+    --brand-tint: var(--color-accent-tint);
+    --ink: var(--color-text-primary);
+    --muted: var(--color-text-secondary);
+    --line: var(--color-border);
+    --canvas: var(--color-background);
+    --blue: var(--color-accent);
+    --navy: var(--color-surface);
+    --text-primary: var(--color-text-primary);
+    --text-secondary: var(--color-text-secondary);
+    --text-muted: var(--color-text-muted);
+    --surface-page: var(--color-background);
+    --surface-panel: var(--color-surface);
+    --border-color: var(--color-border);
+    --seat-available-fill: #24312e;
+    --seat-available-border: #44524e;
+    --seat-booked-fill: #586762;
+    --seat-booked-text: #ffffff;
+    --seat-selected-fill: var(--color-accent);
+    --seat-selected-text: var(--color-text-on-accent);
+    --seat-held-fill: #997438;
+    --seat-held-text: #ffffff;
+    --seat-blocked-fill: #27322f;
+    --seat-blocked-text: #bac8c3;
+    --danger: var(--color-danger);
+    --success: var(--color-success);
+    --warning: var(--color-warning);
+    --shadow-card: 0 1px 3px rgb(0 0 0 / 22%);
+    --shadow-elevated: 0 8px 20px rgb(0 0 0 / 32%);
+    --shadow-bar: 0 -2px 10px rgb(0 0 0 / 26%);
+    --shadow-sidebar: 1px 0 3px rgb(0 0 0 / 20%);
+    --bs-body-color: var(--color-text-primary);
+    --bs-body-bg: var(--color-background);
+    --bs-emphasis-color: var(--color-text-primary);
+    --bs-secondary-color: var(--color-text-secondary);
+    --bs-tertiary-color: var(--color-text-muted);
+    --bs-border-color: var(--color-border);
+    --bs-primary: var(--color-accent);
+    --bs-link-color: var(--color-accent);
+    --bs-link-hover-color: var(--color-accent-hover);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  font-family: Inter, Cairo, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.app-shell,
+.workspace,
+.page-content,
+.sidebar,
+.topbar,
+.mobile-bottom-nav {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+.sidebar {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sidebar);
+}
+
+.topbar {
+  background: var(--color-surface);
+  backdrop-filter: none;
+}
+
+.brand-mark,
+.analytics-shell .brand-mark,
+.analytics-shell .help-icon,
+.analytics-shell .avatar {
+  border-radius: 8px;
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+  box-shadow: none;
+}
+
+.nav-link-item,
+.signout-link,
+.mobile-bottom-nav a {
+  border-radius: 7px;
+}
+
+.nav-link-item.active,
+.analytics-shell .nav-link-item.active,
+.analytics-shell .nav-link-item:hover,
+.analytics-shell .signout-link:hover {
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+  box-shadow: inset 3px 0 var(--color-accent);
+}
+
+.nav-link-item.active > i,
+.nav-link-item > i,
+.breadcrumbs i {
+  color: var(--color-accent);
+}
+
+.topbar,
+.sidebar,
+.sidebar-help,
+.user-chip,
+.app-footer {
+  border-color: var(--color-border);
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.icon-button:hover,
+.analytics-shell .icon-button:hover,
+.analytics-shell .analytics-sidebar-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.page-content {
+  padding: var(--space-8) var(--screen-padding) var(--space-12);
+}
+
+.page-layout {
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.page-content > * {
+  animation: view-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.page-heading {
+  margin-bottom: var(--space-6);
+}
+
+.page-heading h1,
+.page-error h1,
+.page-error h2 {
+  margin-block: 0 8px;
+  font-size: clamp(1.5rem, 2vw, 1.875rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.page-heading p,
+.auth-form-heading p,
+.page-error p {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+}
+
+.panel,
+.table-card,
+.metric-card,
+.trip-operation-card,
+.fleet-vehicle-card,
+.tracking-trip-item,
+.passenger-trip-card,
+.booking-history-card,
+.notification-card,
+.upcoming-trip-card,
+.driver-current-trip,
+.record-panel,
+.detail-aside,
+.seat-panel,
+.user-profile-summary,
+.user-profile-section {
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.metric-card,
+.panel,
+.table-card,
+.trip-operation-card,
+.fleet-vehicle-card,
+.tracking-trip-item,
+.passenger-trip-card,
+.booking-history-card {
+  transition: border-color var(--duration-fast) ease-out, transform var(--duration-fast) ease-out, box-shadow var(--duration-fast) ease-out;
+}
+
+.metric-card:hover,
+.trip-operation-card:hover,
+.fleet-vehicle-card:hover,
+.tracking-trip-item:hover,
+.passenger-trip-card:hover,
+.booking-history-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-1px);
+}
+
+.metric-top,
+.metric-note,
+.panel-header p,
+.network-count span,
+.network-stats > div,
+.chart-footer,
+.chart-day,
+.chart-value,
+.stacked-cell small,
+.table-count,
+.table-pagination,
+.record-field > span,
+.record-field small,
+.detail-aside p,
+.aside-note,
+.trip-card-meta,
+.trip-card-meta small,
+.booking-history-meta,
+.upcoming-trip-facts,
+.driver-trip-facts span,
+.fleet-card-info span,
+.tracking-trip-meta,
+.notification-copy p,
+.notification-copy time {
+  font-size: var(--font-size-metadata);
+}
+
+.panel-header h2 {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.metric-value {
+  font-size: 1.875rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.metric-blue,
+.metric-teal,
+.metric-violet,
+.metric-amber,
+.metric-green,
+.snapshot-icon,
+.empty-icon,
+.help-icon,
+.aside-icon {
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.metric-violet {
+  color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.metric-dot,
+.chart-bar,
+.chart-bar-today,
+.chart-legend {
+  background: var(--color-accent);
+}
+
+.chart-bar-today {
+  background: var(--color-accent);
+}
+
+.btn,
+.auth-submit,
+.heading-actions .btn,
+.page-error .btn,
+.form-modal-footer .btn {
+  min-height: 44px;
+  border-radius: var(--radius-button);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) ease-out;
+}
+
+.btn:hover:not(:disabled),
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled),
+.auth-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-primary,
+.auth-submit,
+.analytics-shell .btn-primary {
+  border-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent);
+  box-shadow: none;
+}
+
+.btn-primary:hover:not(:disabled),
+.auth-submit:hover:not(:disabled),
+.analytics-shell .btn-primary:hover:not(:disabled) {
+  border-color: var(--color-accent-hover);
+  color: var(--color-text-on-accent);
+  background: var(--color-accent-hover);
+}
+
+.btn-light,
+.icon-button,
+.tracking-count,
+.gps-unavailable {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.form-field input:not([type="checkbox"]),
+.form-field select,
+.form-field textarea,
+.auth-field input,
+.auth-field select,
+.search-box,
+.filter-select {
+  min-height: 44px;
+  border-color: var(--color-border);
+  border-radius: var(--radius-input);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  font-size: 0.9375rem;
+  color-scheme: inherit;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus,
+.auth-field input:focus,
+.auth-field select:focus,
+.search-box:focus-within,
+.filter-select:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.field-label,
+.auth-field label,
+.checkbox-label {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.app-table {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.app-table > :not(caption) > * > * {
+  padding: 12px 14px;
+  border-color: var(--color-divider);
+}
+
+.app-table thead th {
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  font-size: 0.75rem;
+}
+
+.app-table tbody tr {
+  transition: background-color var(--duration-fast) ease-out;
+}
+
+.app-table tbody tr:hover {
+  background: var(--color-accent-tint);
+}
+
+.app-table tbody tr:nth-child(-n + 8) {
+  animation: view-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.app-table tbody tr:nth-child(2) { animation-delay: 20ms; }
+.app-table tbody tr:nth-child(3) { animation-delay: 40ms; }
+.app-table tbody tr:nth-child(4) { animation-delay: 60ms; }
+.app-table tbody tr:nth-child(5) { animation-delay: 80ms; }
+.app-table tbody tr:nth-child(6) { animation-delay: 100ms; }
+.app-table tbody tr:nth-child(7) { animation-delay: 120ms; }
+.app-table tbody tr:nth-child(8) { animation-delay: 140ms; }
+
+.primary-cell,
+.stacked-cell strong,
+.record-field > strong,
+.fleet-vehicle-card strong,
+.tracking-detail-title,
+.notification-copy h2,
+.booking-history-main h3,
+.upcoming-trip-card h2,
+.driver-current-trip h2 {
+  color: var(--color-text-primary) !important;
+}
+
+.status-pill {
+  min-height: 24px;
+  padding-inline: 9px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.search-box input,
+.filter-select select {
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+}
+
+.row-action,
+.pagination-button,
+.mobile-menu {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+}
+
+.form-modal {
+  border-color: var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+  animation: modal-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.drawer-scrim {
+  animation: scrim-enter var(--duration-fast) ease-out both;
+}
+
+.form-alert,
+.auth-alert,
+.form-hint,
+.auth-success {
+  animation: feedback-enter var(--duration-fast) var(--ease-out) both;
+}
+
+.auth-field input[type='checkbox'],
+.form-field input[type='checkbox'],
+.checkbox-label input {
+  accent-color: var(--color-accent);
+}
+
+.form-modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.toast-stack {
+  gap: var(--space-2);
+}
+
+.app-toast {
+  min-height: 52px;
+  padding: 12px 14px;
+  border-color: var(--color-border);
+  border-radius: 9px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+  font-size: 0.875rem;
+  animation: toast-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.app-toast button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+}
+
+.app-toast button:hover {
+  color: var(--color-text-primary);
+  background: var(--color-secondary-surface);
+}
+
+.auth-story {
+  background: var(--color-secondary-surface);
+}
+
+.auth-story::before,
+.auth-story::after {
+  display: none;
+}
+
+.auth-story h1 {
+  max-width: 13ch;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+
+.auth-story h1 em {
+  color: var(--color-accent);
+}
+
+.auth-story-content > p,
+.auth-story-footer {
+  font-size: 0.9375rem;
+}
+
+.auth-form-wrap {
+  padding: 32px;
+  border-color: var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.auth-form-heading h2 {
+  font-size: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.auth-form-heading p {
+  margin-top: 8px;
+}
+
+.auth-kicker {
+  font-size: 0.75rem;
+}
+
+.auth-note,
+.auth-switch,
+.auth-field small {
+  font-size: 0.8125rem;
+}
+
+.route-map {
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.tracking-command {
+  border-color: var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.metric-skeleton,
+.skeleton-head,
+.skeleton-row i,
+.detail-skeleton > div,
+.loading-title,
+.tracking-skeleton,
+.analytics-skeleton-heading,
+.analytics-skeleton-filters,
+.analytics-skeleton-kpis > div,
+.analytics-skeleton-charts > div {
+  background: var(--color-surface-elevated);
+  animation: skeleton-enter var(--duration-enter) var(--ease-out) both;
+}
+
+.analytics-shell {
+  --analytics-bg: var(--color-background);
+  --analytics-surface: var(--color-surface);
+  --analytics-surface-raised: var(--color-surface-elevated);
+  --analytics-surface-hover: var(--color-accent-tint);
+  --analytics-border: var(--color-border);
+  --analytics-grid: var(--color-divider);
+  --analytics-text: var(--color-text-primary);
+  --analytics-muted: var(--color-text-secondary);
+  --analytics-lime: var(--color-accent);
+  --analytics-lime-strong: var(--color-accent-hover);
+  --analytics-tooltip: var(--color-surface);
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+.analytics-shell .sidebar,
+.analytics-shell .topbar,
+.analytics-shell .workspace,
+.analytics-shell .page-content {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  backdrop-filter: none;
+}
+
+.analytics-shell .nav-link-item,
+.analytics-shell .signout-link {
+  color: var(--color-text-secondary);
+}
+
+.analytics-shell .nav-link-item:hover,
+.analytics-shell .signout-link:hover,
+.analytics-shell .nav-link-item.active {
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+.analytics-shell .nav-link-item.active > i,
+.analytics-shell .nav-link-item > i,
+.analytics-shell .sidebar-help > a:hover {
+  color: var(--color-accent);
+}
+
+.analytics-shell .mobile-bottom-nav a.active {
+  color: var(--color-accent-hover);
+  background: var(--color-accent-tint);
+}
+
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modal-enter {
+  from { opacity: 0; transform: translateY(8px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scrim-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes feedback-enter {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes skeleton-enter {
+  from { opacity: .45; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .page-content {
+    padding: var(--space-5) var(--screen-padding) calc(var(--space-12) + var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .auth-form-wrap {
+    padding: 24px;
+  }
+
+  .topbar {
+    min-height: var(--header-height);
+    padding-inline: var(--screen-padding);
+  }
+
+  .mobile-bottom-nav {
+    background: var(--color-surface);
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .auth-form-wrap {
+    padding: 20px;
+  }
+
+  .app-table > :not(caption) > * > * {
+    padding: 10px;
+  }
+}
+
+:root[data-theme='dark'] body,
+:root[data-theme='dark'] .auth-form-wrap,
+:root[data-theme='dark'] .table-card,
+:root[data-theme='dark'] .panel,
+:root[data-theme='dark'] .metric-card,
+:root[data-theme='dark'] .form-modal,
+:root[data-theme='dark'] .tracking-command,
+:root[data-theme='dark'] .trip-operation-card,
+:root[data-theme='dark'] .fleet-vehicle-card,
+:root[data-theme='dark'] .tracking-trip-item,
+:root[data-theme='dark'] .passenger-trip-card,
+:root[data-theme='dark'] .booking-history-card,
+:root[data-theme='dark'] .notification-card,
+:root[data-theme='dark'] .upcoming-trip-card,
+:root[data-theme='dark'] .driver-current-trip {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+}
+
+:root[data-theme='dark'] .auth-story,
+:root[data-theme='dark'] .chart-track,
+:root[data-theme='dark'] .network-foot,
+:root[data-theme='dark'] .activity-chart,
+:root[data-theme='dark'] .table-message,
+:root[data-theme='dark'] .panel-empty,
+:root[data-theme='dark'] .app-table thead th,
+:root[data-theme='dark'] .aside-note,
+:root[data-theme='dark'] .tracking-map-toolbar,
+:root[data-theme='dark'] .map-legend,
+:root[data-theme='dark'] .fleet-telemetry-note,
+:root[data-theme='dark'] .fleet-assignment-warning {
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-elevated);
+}
+
+:root[data-theme='dark'] .auth-story h1,
+:root[data-theme='dark'] .auth-form-heading h2,
+:root[data-theme='dark'] .page-heading h1,
+:root[data-theme='dark'] .panel-header h2,
+:root[data-theme='dark'] .metric-value,
+:root[data-theme='dark'] .network-count strong,
+:root[data-theme='dark'] .table-message > strong,
+:root[data-theme='dark'] .table-pagination strong,
+:root[data-theme='dark'] .app-table,
+:root[data-theme='dark'] .app-table tbody td,
+:root[data-theme='dark'] .stacked-cell strong,
+:root[data-theme='dark'] .primary-cell {
+  color: var(--color-text-primary) !important;
+}
+
+:root[data-theme='dark'] .search-box input,
+:root[data-theme='dark'] .filter-select select,
+:root[data-theme='dark'] .form-field input,
+:root[data-theme='dark'] .form-field select,
+:root[data-theme='dark'] .form-field textarea,
+:root[data-theme='dark'] .auth-field input,
+:root[data-theme='dark'] .auth-field select {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+:root[data-theme='dark'] .route-map {
+  background-color: #202b28;
+}
+
+:root[data-theme='dark'] .map-station-label,
+:root[data-theme='dark'] .map-route-caption,
+:root[data-theme='dark'] .map-disclaimer,
+:root[data-theme='dark'] .map-no-coordinates {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+:root[data-theme='dark'] .auth-story h1 em,
+:root[data-theme='dark'] .panel-link,
+:root[data-theme='dark'] .table-id-link,
+:root[data-theme='dark'] .tracking-detail-link,
+:root[data-theme='dark'] .trip-empty a,
+:root[data-theme='dark'] .tracking-empty a,
+:root[data-theme='dark'] .tracking-empty-detail a {
+  color: var(--color-accent-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body,
+  :root:not([data-theme='light']) .auth-form-wrap,
+  :root:not([data-theme='light']) .table-card,
+  :root:not([data-theme='light']) .panel,
+  :root:not([data-theme='light']) .metric-card,
+  :root:not([data-theme='light']) .form-modal,
+  :root:not([data-theme='light']) .tracking-command,
+  :root:not([data-theme='light']) .trip-operation-card,
+  :root:not([data-theme='light']) .fleet-vehicle-card,
+  :root:not([data-theme='light']) .tracking-trip-item,
+  :root:not([data-theme='light']) .passenger-trip-card,
+  :root:not([data-theme='light']) .booking-history-card,
+  :root:not([data-theme='light']) .notification-card,
+  :root:not([data-theme='light']) .upcoming-trip-card,
+  :root:not([data-theme='light']) .driver-current-trip {
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
+  }
+
+  :root:not([data-theme='light']) .auth-story,
+  :root:not([data-theme='light']) .chart-track,
+  :root:not([data-theme='light']) .network-foot,
+  :root:not([data-theme='light']) .activity-chart,
+  :root:not([data-theme='light']) .table-message,
+  :root:not([data-theme='light']) .panel-empty,
+  :root:not([data-theme='light']) .app-table thead th,
+  :root:not([data-theme='light']) .aside-note,
+  :root:not([data-theme='light']) .tracking-map-toolbar,
+  :root:not([data-theme='light']) .map-legend,
+  :root:not([data-theme='light']) .fleet-telemetry-note,
+  :root:not([data-theme='light']) .fleet-assignment-warning {
+    color: var(--color-text-secondary);
+    background-color: var(--color-surface-elevated);
+  }
+
+  :root:not([data-theme='light']) .auth-story h1,
+  :root:not([data-theme='light']) .auth-form-heading h2,
+  :root:not([data-theme='light']) .page-heading h1,
+  :root:not([data-theme='light']) .panel-header h2,
+  :root:not([data-theme='light']) .metric-value,
+  :root:not([data-theme='light']) .network-count strong,
+  :root:not([data-theme='light']) .table-message > strong,
+  :root:not([data-theme='light']) .table-pagination strong,
+  :root:not([data-theme='light']) .app-table,
+  :root:not([data-theme='light']) .app-table tbody td,
+  :root:not([data-theme='light']) .stacked-cell strong,
+  :root:not([data-theme='light']) .primary-cell {
+    color: var(--color-text-primary) !important;
+  }
+
+  :root:not([data-theme='light']) .search-box input,
+  :root:not([data-theme='light']) .filter-select select,
+  :root:not([data-theme='light']) .form-field input,
+  :root:not([data-theme='light']) .form-field select,
+  :root:not([data-theme='light']) .form-field textarea,
+  :root:not([data-theme='light']) .auth-field input,
+  :root:not([data-theme='light']) .auth-field select {
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+  }
+
+  :root:not([data-theme='light']) .route-map {
+    background-color: #202b28;
+  }
+
+  :root:not([data-theme='light']) .map-station-label,
+  :root:not([data-theme='light']) .map-route-caption,
+  :root:not([data-theme='light']) .map-disclaimer,
+  :root:not([data-theme='light']) .map-no-coordinates {
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

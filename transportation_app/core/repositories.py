@@ -1,9 +1,10 @@
 from collections.abc import Iterable, Mapping
 from typing import Any, Protocol
 
-from django.db.models import Prefetch, QuerySet
+from django.db.models import Prefetch, Q, QuerySet
+from django.utils import timezone
 
-from .models import FareRule, Payment, Route, RouteStation, Station, Trip
+from .models import FareRule, Route, RouteStation, Station, Trip
 
 
 class TripRepositoryProtocol(Protocol):
@@ -17,7 +18,7 @@ class TripRepositoryProtocol(Protocol):
 
     def first_active_fare_rule(self, route: Route) -> FareRule | None: ...
 
-    def create_trip_with_payment(self, validated_data: Mapping[str, Any]) -> Trip: ...
+    def create_trip(self, validated_data: Mapping[str, Any]) -> Trip: ...
 
 
 class TripRepository:
@@ -42,7 +43,10 @@ class TripRepository:
                 ),
                 Prefetch(
                     "fare_rules",
-                    queryset=FareRule.objects.filter(is_active=True).order_by("pk"),
+                    queryset=FareRule.objects.filter(is_active=True)
+                    .filter(Q(valid_from__isnull=True) | Q(valid_from__lte=timezone.now()))
+                    .filter(Q(valid_to__isnull=True) | Q(valid_to__gte=timezone.now()))
+                    .order_by("pk"),
                     to_attr="_active_fare_rules",
                 ),
             )
@@ -52,11 +56,5 @@ class TripRepository:
         active_fare_rules = route._active_fare_rules
         return active_fare_rules[0] if active_fare_rules else None
 
-    def create_trip_with_payment(self, validated_data: Mapping[str, Any]) -> Trip:
-        trip = Trip.objects.create(**validated_data)
-        Payment.objects.create(
-            trip=trip,
-            amount=trip.fare_amount,
-            payment_method="cash",
-        )
-        return trip
+    def create_trip(self, validated_data: Mapping[str, Any]) -> Trip:
+        return Trip.objects.create(**validated_data)

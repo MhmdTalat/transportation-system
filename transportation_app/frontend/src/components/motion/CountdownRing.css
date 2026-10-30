@@ -1,0 +1,128 @@
+/**
+ * CountdownRing Styles
+ *
+ * Circular countdown with SVG stroke animation.
+ * Time display in center, progress ring around edge.
+ */
+
+.countdown-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+}
+
+.countdown-ring__svg {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.countdown-ring__background {
+  fill: none;
+  stroke: var(--color-secondary-surface, #F3F3F3);
+  stroke-width: 4;
+}
+
+.countdown-ring__progress {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.2s ease;
+}
+
+.countdown-ring__label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-ring__time {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-primary, #0B0B0C);
+}
+
+/* ========== FINISHED STATE ========== */
+
+.countdown-ring--finished .countdown-ring__background {
+  stroke: var(--color-success, #1FA971);
+}
+
+.countdown-ring--finished .countdown-ring__progress {
+  stroke: var(--color-success, #1FA971);
+}
+
+.countdown-ring--finished .countdown-ring__time {
+  color: var(--color-success, #1FA971);
+}
+
+/* ========== REDUCED MOTION ========== */
+
+.countdown-ring--reduced {
+  background: var(--color-secondary-surface, #F3F3F3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-ring--reduced .countdown-ring__label {
+  position: static;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countdown-ring__progress {
+    animation: none;
+  }
+}
+
+/* ========== COMPACT VARIANT ========== */
+
+.countdown-ring-compact {
+  width: 48px;
+  height: 48px;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.countdown-ring-compact__background {
+  fill: none;
+  stroke: var(--color-secondary-surface, #F3F3F3);
+  stroke-width: 2;
+}
+
+.countdown-ring-compact__progress {
+  fill: none;
+  stroke: var(--color-accent, #1D9E75);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.countdown-ring-compact--reduced {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-secondary-surface, #F3F3F3);
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .countdown-ring__background,
+:root:not([data-theme='light']) .countdown-ring__background,
+:root[data-theme='dark'] .countdown-ring-compact__background,
+:root:not([data-theme='light']) .countdown-ring-compact__background {
+  stroke: var(--color-secondary-surface, #232429);
+}
+
+:root[data-theme='dark'] .countdown-ring__time,
+:root:not([data-theme='light']) .countdown-ring__time {
+  color: var(--color-text-primary, #F2F2F3);
+}

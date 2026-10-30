@@ -1,9 +1,11 @@
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .app-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--ink);
 }
 
@@ -69,6 +71,7 @@
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(112, 119, 131, 0.35) transparent;
 }
@@ -212,7 +215,9 @@
 
 .workspace {
   display: flex;
+  width: calc(100% - 258px);
   min-height: 100vh;
+  min-height: 100dvh;
   flex-direction: column;
   margin-left: 258px;
 }
@@ -222,7 +227,8 @@
   top: 0;
   z-index: 10;
   display: flex;
-  height: 68px;
+  height: var(--header-height);
+  min-height: var(--header-height);
   align-items: center;
   justify-content: space-between;
   padding: 0 39px;
@@ -339,16 +345,16 @@
 
 .page-content {
   width: 100%;
-  max-width: 1500px;
   flex: 1;
   margin: 0 auto;
-  padding: 32px 39px 44px;
+  padding: var(--space-8) var(--screen-padding) var(--space-12);
 }
 
 .app-footer {
   display: flex;
   justify-content: space-between;
-  padding: 12px 39px 19px;
+  padding: var(--space-3) var(--screen-padding) var(--space-4);
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   color: var(--color-text-muted);
   font-size: 9px;
 }
@@ -1308,6 +1314,7 @@
   align-items: center;
   justify-content: center;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 24px;
   background: rgb(32 36 43 / 35%);
   backdrop-filter: blur(3px);
@@ -1316,7 +1323,9 @@
 .form-modal {
   width: min(100%, 650px);
   max-height: min(90vh, 850px);
+  max-height: min(90dvh, 850px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid rgb(255 255 255 / 65%);
   border-radius: 14px;
   background: var(--color-surface);
@@ -1499,6 +1508,8 @@
 
 .auth-page {
   display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
   min-height: 100vh;
   grid-template-columns: minmax(350px, .92fr) minmax(480px, 1.08fr);
   background: var(--color-background);
@@ -3163,18 +3174,18 @@
 
 @media (max-width: 1100px) {
   .page-content {
-    padding-right: 25px;
-    padding-left: 25px;
+    padding-right: var(--screen-padding);
+    padding-left: var(--screen-padding);
   }
 
   .topbar {
-    padding-right: 25px;
-    padding-left: 25px;
+    padding-right: var(--screen-padding);
+    padding-left: var(--screen-padding);
   }
 
   .app-footer {
-    padding-right: 25px;
-    padding-left: 25px;
+    padding-right: var(--screen-padding);
+    padding-left: var(--screen-padding);
   }
 
   .metrics-grid {
@@ -3213,11 +3224,13 @@
 
   .workspace {
     margin-left: 0;
+    width: 100%;
   }
 
   .topbar {
-    height: 60px;
-    padding: 0 17px;
+    height: var(--header-height);
+    min-height: var(--header-height);
+    padding-inline: var(--screen-padding);
   }
 
   .topbar-left {

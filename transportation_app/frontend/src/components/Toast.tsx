@@ -32,7 +32,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toast-stack" aria-live="polite" aria-atomic="false">
         {toasts.map((toast) => (
-          <div className={`app-toast toast-${toast.kind}`} key={toast.id} role="status">
+          <div
+            className={`app-toast toast-${toast.kind}`}
+            key={toast.id}
+            role={toast.kind === 'error' ? 'alert' : 'status'}
+            aria-atomic="true"
+          >
             <i className={`bi ${toast.kind === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'}`} aria-hidden="true" />
             <span>{toast.message}</span>
             <button type="button" aria-label="Dismiss notification" onClick={() => setToasts((items) => items.filter((item) => item.id !== toast.id))}>

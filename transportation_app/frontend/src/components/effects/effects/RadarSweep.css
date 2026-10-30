@@ -1,0 +1,60 @@
+/**
+ * RadarSweep Effect Styles
+ *
+ * Rotating wedge with pulsing rings and blips.
+ * Clean, minimal design; uses only SVG transforms.
+ */
+
+.radar-sweep {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
+}
+
+.radar-center {
+  will-change: auto;
+}
+
+.radar-wedge {
+  will-change: transform;
+  filter: blur(0.5px); /* Soft edge */
+}
+
+.radar-wedge-group {
+  will-change: transform;
+}
+
+.radar-ring {
+  will-change: opacity;
+  vector-effect: non-scaling-stroke; /* Maintain stroke width at any scale */
+}
+
+.radar-blip-group {
+  will-change: opacity;
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-wedge-group {
+    animation: none !important;
+  }
+
+  .radar-ring {
+    animation: none !important;
+    opacity: 0.15 !important;
+  }
+
+  .radar-blip-group {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .radar-sweep,
+:root:not([data-theme='light']) .radar-sweep {
+  /* Colors come from CSS custom property --color-accent */
+  /* Which is already themed via ride-tokens.css */
+}

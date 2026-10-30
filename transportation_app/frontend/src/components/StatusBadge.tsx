@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 export type StatusKind = 'trip' | 'vehicle' | 'driver' | 'generic'
 
 interface Props {
@@ -56,14 +58,15 @@ const statusPresentation: Record<StatusKind, Record<string, { label: string; ico
 }
 
 export function StatusBadge({ status, kind = 'generic' }: Props) {
+  const { t } = useTranslation()
   const normalized = status.toLowerCase().replaceAll(' ', '_')
   const presentation = statusPresentation[kind][normalized] ?? statusPresentation.generic[normalized]
-  const label = presentation?.label ?? status.replaceAll('_', ' ')
+  const label = t(presentation?.label ?? status.replaceAll('_', ' '))
   const icon = presentation?.icon ?? 'bi-record-circle'
   const tone = presentation?.tone ?? 'neutral'
 
   return (
-    <span className={`status-pill status-tone-${tone}`} aria-label={`Status: ${label}`}>
+    <span className={`status-pill status-tone-${tone}`} aria-label={`${t('Status')}: ${label}`}>
       <i className={`bi ${icon}`} aria-hidden="true" />
       {label}
     </span>

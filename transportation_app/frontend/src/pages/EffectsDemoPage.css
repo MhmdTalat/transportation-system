@@ -1,0 +1,198 @@
+/**
+ * EffectsDemoPage Styles
+ *
+ * Test harness for background effects.
+ * Shows effect with interactive controls.
+ */
+
+.effects-demo-page {
+  min-height: 100vh;
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--color-background, #F3F3F3);
+}
+
+.effects-demo-container {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #E6E6E6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface, #FFFFFF);
+}
+
+.effects-demo-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.effects-demo-header {
+  text-align: center;
+  color: var(--color-text-primary, #0B0B0C);
+  pointer-events: auto;
+}
+
+.effects-demo-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.effects-demo-header p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary, #5E5E5E);
+}
+
+.effects-demo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 12px;
+  min-width: 250px;
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, #0B0B0C);
+}
+
+.control-group label strong {
+  color: var(--color-accent, #1D9E75);
+}
+
+.control-group input[type='range'] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.control-group input[type='checkbox'] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.effects-demo-selector {
+  pointer-events: auto;
+}
+
+.effect-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.effect-button {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border, #E6E6E6);
+  border-radius: 8px;
+  background: var(--color-surface, #FFFFFF);
+  color: var(--color-text-secondary, #5E5E5E);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.effect-button:hover {
+  border-color: var(--color-accent, #1D9E75);
+  color: var(--color-accent, #1D9E75);
+}
+
+.effect-button.active {
+  background: var(--color-accent, #1D9E75);
+  color: white;
+  border-color: var(--color-accent, #1D9E75);
+}
+
+.effect-button .badge {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(255, 165, 0, 0.2);
+  border-radius: 3px;
+  font-size: 10px;
+  color: #F5A524;
+}
+
+/* Demo notes section */
+.effects-demo-notes {
+  background: var(--color-surface, #FFFFFF);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--color-border, #E6E6E6);
+}
+
+.effects-demo-notes h2 {
+  margin-top: 0;
+  color: var(--color-text-primary, #0B0B0C);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.effects-demo-notes ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.effects-demo-notes li {
+  padding: 0.5rem;
+  font-size: 14px;
+  color: var(--color-text-secondary, #5E5E5E);
+}
+
+.effects-demo-notes li input[type='checkbox'] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+/* Dark mode */
+:root[data-theme='dark'] .effects-demo-controls,
+:root:not([data-theme='light']) .effects-demo-controls {
+  background: rgba(28, 29, 33, 0.95);
+  color: var(--color-text-primary, #F2F2F3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .effects-demo-page {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .effects-demo-container {
+    height: 50vh;
+  }
+
+  .effect-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

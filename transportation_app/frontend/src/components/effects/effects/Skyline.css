@@ -1,0 +1,56 @@
+/**
+ * Skyline Effect Styles
+ *
+ * Three-layer parallax scrolling: far buildings (slow), near buildings (medium), road (fast).
+ * Seamless horizontal loop with no visible jump.
+ */
+
+.skyline {
+  width: 100%;
+  height: 100%;
+}
+
+.skyline-far,
+.skyline-near,
+.skyline-road {
+  will-change: transform;
+}
+
+.skyline-far-path,
+.skyline-near-path {
+  will-change: auto;
+  vector-effect: non-scaling-stroke;
+}
+
+.skyline-dash {
+  will-change: auto;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .skyline-far,
+  .skyline-near,
+  .skyline-road {
+    animation: none !important;
+    transform: translateX(0) !important;
+  }
+
+  .skyline-far-path,
+  .skyline-near-path {
+    opacity: 0.1 !important;
+  }
+
+  .skyline-dash {
+    opacity: 0.05 !important;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .skyline,
+:root:not([data-theme='light']) .skyline {
+  /* Colors come from CSS custom property --color-accent */
+  /* Opacity adjusted by React component for dark mode */
+}

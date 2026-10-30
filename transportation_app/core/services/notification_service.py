@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from ..models import Booking, Notification, User
@@ -34,15 +35,21 @@ def create_due_trip_reminders(user: User | None = None) -> int:
             )
         else:
             continue
-        _, created = Notification.objects.get_or_create(
-            dedupe_key=f'trip-reminder:{booking.pk}:{2 if remaining <= timedelta(hours=2) else 24}h',
-            defaults={
-                'user': booking.passenger,
-                'booking': booking,
-                'notification_type': 'trip_reminder',
-                'title': title,
-                'message': message,
-            },
-        )
-        created_count += int(created)
+        dedupe_key = f'trip-reminder:{booking.pk}:{2 if remaining <= timedelta(hours=2) else 24}h'
+        try:
+            with transaction.atomic():
+                _, created = Notification.objects.get_or_create(
+                    dedupe_key=dedupe_key,
+                    defaults={
+                        'user': booking.passenger,
+                        'booking': booking,
+                        'notification_type': 'trip_reminder',
+                        'title': title,
+                        'message': message,
+                    },
+                )
+                created_count += int(created)
+        except IntegrityError:
+            if not Notification.objects.filter(dedupe_key=dedupe_key).exists():
+                raise
     return created_count

@@ -22,6 +22,28 @@ Edit the shared values in [`src/index.css`](./src/index.css). Use them in compon
 - Use `VehicleSeatMap` for passenger seat selection and the operator vehicle-layout preview.
 - Use the mobile bottom navigation at compact breakpoints; keep the complete role-filtered navigation in the drawer.
 
+## Animated backgrounds
+
+The app includes three reusable background components:
+
+```tsx
+<MovingCarsBackground color="var(--color-accent)" speed={1} intensity={0.75} paused={false} />
+<RadarPulseBackground color="var(--color-accent)" speed={1} intensity={0.75} paused={false} />
+<SoftShapesBackground color="var(--color-accent)" speed={1} intensity={0.15} paused={false} />
+```
+
+- Use `color` with a theme token such as `var(--color-accent)`, not a hardcoded color.
+- Increase `speed` to shorten loops; decrease it to slow movement. Values below `0.25` are clamped.
+- `intensity` controls layer visibility: moving/radar layers are clamped from `0` to `1`; soft shapes are clamped from `10%` to `20%`.
+- `paused` is useful for route transitions or component-specific focus rules. The components also pause automatically when the document is hidden or reduced motion is enabled.
+- Each background is decorative, uses `pointerEvents: "none"`, and must remain behind high-contrast content.
+
+| Screen | Background | Default loop | Expected cost |
+| --- | --- | --- | --- |
+| Passenger home map preview | `MovingCarsBackground` | Cars 6-8 s; route 2.5 s | 3 compositor transforms plus one SVG dash animation |
+| Passenger driver search | `RadarPulseBackground` | Radar 3 s; stagger 1 s | 3 ring transforms, 3 low-opacity dots |
+| Login, registration, recovery, reset success | `SoftShapesBackground` | Shapes 7-11 s | 4 compositor transforms |
+
 ## Intentional differences and limitations
 
 - No reference screenshots were attached. The light palette and layouts follow the written req8 guidance and remain adjustable through the tokens; they are not claimed to be sampled or pixel-matched.

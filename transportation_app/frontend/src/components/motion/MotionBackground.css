@@ -1,0 +1,99 @@
+/**
+ * MotionBackground Styles
+ *
+ * All motion graphics scenes sit behind content.
+ * Pointer events disabled; Z-index: 0 so content is always on top.
+ */
+
+.motion-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  will-change: opacity;
+}
+
+/* ========== SCENE VARIANTS ========== */
+
+.motion-background--home {
+  /* Parallax city drive, 24s loop */
+}
+
+.motion-background--searching {
+  /* Radar with expanding rings, 4s loop */
+}
+
+.motion-background--matched {
+  /* Route draw + car glide, 2.5s play-once */
+}
+
+.motion-background--inTrip {
+  /* Speed streaks + road shake, 1.5s loop */
+}
+
+.motion-background--payment {
+  /* Checkmark burst + confetti, 2s play-once */
+}
+
+.motion-background--login {
+  /* Soft flow shapes, 60s ambient loop */
+}
+
+.motion-background--rating {
+  /* Drifting circles + bouncing stars, 12s loop */
+}
+
+.motion-background--error {
+  /* Broken route + pulsing warning, 3s loop */
+}
+
+.motion-background--idle {
+  /* Subtle pulse ring, 5s battery-safe loop */
+}
+
+/* ========== STATE CLASSES ========== */
+
+.motion-background.is-paused {
+  /* Animation paused (screen hidden or user preference) */
+  animation-play-state: paused !important;
+  opacity: 0.5; /* Dim static frame */
+}
+
+.motion-background.is-static {
+  /* Reduce motion: show static frame only */
+  animation: none !important;
+  opacity: 0.15 !important;
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-background {
+    animation: none !important;
+    opacity: 0.1 !important;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .motion-background,
+:root:not([data-theme='light']) .motion-background {
+  /* Scene components handle their own color theming */
+}
+
+/* ========== SVG OPTIMIZATION ========== */
+
+.motion-background svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.motion-background path,
+.motion-background circle,
+.motion-background rect,
+.motion-background line {
+  will-change: transform, opacity;
+  vector-effect: non-scaling-stroke;
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { DataTable } from '../components/DataTable'
 import { FleetVehicleGrid } from '../components/FleetVehicleGrid'
@@ -12,6 +13,7 @@ import { displayValue, getResource } from '../services/resources'
 import type { ApiRecord, ResourceDefinition } from '../types'
 
 export function ResourcePage() {
+  const { t } = useTranslation()
   const { resource: resourceKey, id } = useParams()
   const [searchParams] = useSearchParams()
   const resource = getResource(resourceKey)
@@ -34,11 +36,11 @@ export function ResourcePage() {
         setRows(result)
       }
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Unable to load records from the API.')
+      setError(reason instanceof ApiError ? reason.message : t('Unable to load records from the API.'))
     } finally {
       setLoading(false)
     }
-  }, [id, resource])
+  }, [id, resource, t])
 
   useEffect(() => {
     const timer = window.setTimeout(() => { void load() }, 0)
@@ -52,20 +54,32 @@ export function ResourcePage() {
   }
 
   if (!resource) {
-    return <section className="page-error"><span className="empty-icon"><i className="bi bi-signpost-split" /></span><h1>Module not found</h1><p>This section isn’t connected to the transportation API.</p><Link className="btn btn-primary" to="/">Return to dashboard</Link></section>
+    return <section className="page-error"><span className="empty-icon"><i className="bi bi-signpost-split" /></span><h1>{t('Module not found')}</h1><p>{t('This section isn’t connected to the transportation API.')}</p><Link className="btn btn-primary" to="/">{t('Return to dashboard')}</Link></section>
   }
   const currentResource: ResourceDefinition = resource
 
   function deleteRecord(row: ApiRecord) {
     const label = `${currentResource.singular.toLowerCase()} #${row.id}`
-    if (!window.confirm(`Delete ${label}? This action cannot be undone.`)) return
+    if (
+      currentResource.key === 'trips'
+      && typeof row.booked_seats === 'number'
+      && row.booked_seats > 0
+    ) {
+      showToast(t('This trip has {{count}} booked seat(s) and cannot be deleted. Cancel the trip instead.', { count: row.booked_seats }), 'error')
+      return
+    }
+    if (!window.confirm(t('Delete {{label}}? This action cannot be undone.', { label: t(currentResource.singular.toLowerCase()) }))) return
     void api.delete(`/api/${currentResource.endpoint}/${row.id}/`)
       .then(() => {
-        showToast(`${currentResource.singular} deleted.`)
+        showToast(t('{{resource}} deleted.', { resource: t(currentResource.singular) }))
         if (id) navigate(`/${currentResource.key}`, { replace: true })
         else retryLoad()
       })
       .catch((reason: unknown) => {
+        if (reason instanceof ApiError && reason.status === 400) {
+          showToast(reason.message, 'error')
+          return
+        }
         if (
           reason instanceof ApiError
           && (
@@ -74,10 +88,10 @@ export function ResourcePage() {
           )
           && ['stations', 'routes', 'trips'].includes(currentResource.key)
         ) {
-          showToast(`This ${currentResource.singular.toLowerCase()} is referenced by existing trip or booking records and cannot be deleted.`, 'error')
+          showToast(t('This {{resource}} is referenced by existing trip or booking records and cannot be deleted.', { resource: t(currentResource.singular.toLowerCase()) }), 'error')
           return
         }
-        showToast(reason instanceof Error ? reason.message : `Could not delete ${label}.`, 'error')
+        showToast(reason instanceof Error ? reason.message : t('Could not delete {{label}}.', { label }), 'error')
       })
   }
 
@@ -150,16 +164,16 @@ export function ResourcePage() {
     <div className="resource-page">
       {!(id && currentResource.key === 'users' && record) && <div className="page-heading">
         <div>
-          {id && <Link className="back-link" to={`/${currentResource.key}`}><i className="bi bi-arrow-left" /> Back to {currentResource.title}</Link>}
-          <span className="eyebrow">{id ? `${currentResource.singular.toUpperCase()} RECORD` : 'OPERATIONS DIRECTORY'}</span>
-          <h1>{id ? `${currentResource.singular} #${id}` : currentResource.title}</h1>
-          <p>{id ? 'Review the record details available from your transportation API.' : currentResource.description}</p>
+          {id && <Link className="back-link" to={`/${currentResource.key}`}><i className="bi bi-arrow-left" /> {t('Back to')} {t(currentResource.title)}</Link>}
+          <span className="eyebrow">{id ? `${t(currentResource.singular.toUpperCase())} ${t('RECORD')}` : t('OPERATIONS DIRECTORY')}</span>
+          <h1>{id ? `${t(currentResource.singular)} #${id}` : t(currentResource.title)}</h1>
+          <p>{id ? t('Review the record details available from your transportation API.') : t(currentResource.description)}</p>
         </div>
         <div className="heading-actions">
-          {!id && <button className="btn btn-light" type="button" onClick={exportCsv} disabled={!rows.length}><i className="bi bi-download" /> Export CSV</button>}
-          {!id && currentResource.canCreate !== false && <button className="btn btn-primary" type="button" onClick={() => setFormRecord(null)}><i className="bi bi-plus-lg" /> Add {currentResource.singular}</button>}
-          {id && selectedRecord && canEdit && <button className="btn btn-primary" type="button" onClick={() => setFormRecord(selectedRecord)}><i className="bi bi-pencil" /> Edit record</button>}
-          {id && selectedRecord && currentResource.canDelete !== false && <button className="btn btn-outline-danger" type="button" onClick={() => deleteRecord(selectedRecord)}><i className="bi bi-trash3" /> Delete</button>}
+          {!id && <button className="btn btn-light" type="button" onClick={exportCsv} disabled={!rows.length}><i className="bi bi-download" /> {t('Export CSV')}</button>}
+          {!id && currentResource.canCreate !== false && <button className="btn btn-primary" type="button" onClick={() => setFormRecord(null)}><i className="bi bi-plus-lg" /> {t('Add')} {t(currentResource.singular)}</button>}
+          {id && selectedRecord && canEdit && <button className="btn btn-primary" type="button" onClick={() => setFormRecord(selectedRecord)}><i className="bi bi-pencil" /> {t('Edit record')}</button>}
+          {id && selectedRecord && currentResource.canDelete !== false && <button className="btn btn-outline-danger" type="button" onClick={() => deleteRecord(selectedRecord)}><i className="bi bi-trash3" /> {t('Delete')}</button>}
         </div>
       </div>}
 
@@ -181,8 +195,8 @@ export function ResourcePage() {
                 <header className="user-collection-heading">
                   <span className={`user-collection-icon user-collection-icon-${collection.key}`}><i className={`bi ${collection.icon}`} aria-hidden="true" /></span>
                   <div>
-                    <h2>{collection.title}</h2>
-                    <p>{collection.description}</p>
+                    <h2>{t(collection.title)}</h2>
+                    <p>{t(collection.description)}</p>
                   </div>
                   <span className="user-collection-count">{collection.rows.length}</span>
                 </header>
@@ -222,19 +236,19 @@ export function ResourcePage() {
           />
         )
       ) : loading ? (
-        <div className="detail-skeleton" aria-label="Loading record"><div /><div /><div /><div /><div /><div /></div>
+        <div className="detail-skeleton" aria-label={t('Loading record')}><div /><div /><div /><div /><div /><div /></div>
       ) : error || !record ? (
-        <section className="page-error inline-error"><span className="empty-icon"><i className="bi bi-cloud-slash" /></span><h2>Unable to load this record</h2><p>{error ?? 'The record was not found.'}</p><button className="btn btn-outline-primary" type="button" onClick={retryLoad}><i className="bi bi-arrow-clockwise" /> Try again</button></section>
+        <section className="page-error inline-error"><span className="empty-icon"><i className="bi bi-cloud-slash" /></span><h2>{t('Unable to load this record')}</h2><p>{error ?? t('The record was not found.')}</p><button className="btn btn-outline-primary" type="button" onClick={retryLoad}><i className="bi bi-arrow-clockwise" /> {t('Try again')}</button></section>
       ) : currentResource.key === 'users' ? (
         <UserProfileDetails record={record} />
       ) : (
         <div className="record-layout">
           <section className="panel record-panel">
-            <header className="panel-header"><div><h2>Record overview</h2><p>Fields and relationships returned by the API</p></div><span className="record-id-badge">ID {record.id}</span></header>
+            <header className="panel-header"><div><h2>{t('Record overview')}</h2><p>{t('Fields and relationships returned by the API')}</p></div><span className="record-id-badge">ID {record.id}</span></header>
             <div className="record-grid">
               {currentResource.columns.map((column) => {
                 const value = column.render ? column.render(record) : displayValue(record[column.key])
-                return <div className="record-field" key={column.key}><span>{column.label}</span><strong className={column.key === 'status' ? '' : undefined}>{column.key === 'status' ? <StatusBadge status={String(record.status ?? 'unknown')} kind={currentResource.key === 'trips' ? 'trip' : currentResource.key === 'drivers' ? 'driver' : currentResource.key === 'vehicles' ? 'vehicle' : 'generic'} /> : value}</strong></div>
+                return <div className="record-field" key={column.key}><span>{t(column.label)}</span><strong className={column.key === 'status' ? '' : undefined}>{column.key === 'status' ? <StatusBadge status={String(record.status ?? 'unknown')} kind={currentResource.key === 'trips' ? 'trip' : currentResource.key === 'drivers' ? 'driver' : currentResource.key === 'vehicles' ? 'vehicle' : 'generic'} /> : value}</strong></div>
               })}
               {Object.entries(record).filter(([key]) => !currentResource.columns.some((column) => column.key === key) && key !== 'id').map(([key, value]) => (
                 <div className="record-field" key={key}><span>{key.replaceAll('_', ' ')}</span><strong>{displayValue(value)}</strong></div>
@@ -243,10 +257,10 @@ export function ResourcePage() {
           </section>
           <aside className="panel detail-aside">
             <span className="aside-icon"><i className={`bi ${currentResource.icon}`} /></span>
-            <h3>{currentResource.singular} details</h3>
-            <p>This view reflects data returned by the configured API. Editing and deletion use the matching resource endpoints.</p>
-            <div className="aside-note"><i className="bi bi-shield-check" /><span>Changes are sent to the backend and may be subject to server-side validation.</span></div>
-            <a className="panel-link" href="/swagger/" target="_blank" rel="noreferrer">View API schema <i className="bi bi-arrow-up-right" /></a>
+            <h3>{t('{{resource}} details', { resource: t(currentResource.singular) })}</h3>
+            <p>{t('This view reflects data returned by the configured API. Editing and deletion use the matching resource endpoints.')}</p>
+            <div className="aside-note"><i className="bi bi-shield-check" /><span>{t('Changes are sent to the backend and may be subject to server-side validation.')}</span></div>
+            <a className="panel-link" href="/swagger/" target="_blank" rel="noreferrer">{t('View API schema')} <i className="bi bi-arrow-up-right" /></a>
           </aside>
         </div>
       )}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { AuthContext } from './AuthContext'
 import type { AuthContextValue } from './AuthContext'
-import { api } from '../services/api'
+import { api, revokeSession } from '../services/api'
 import type { UserRecord } from '../types'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -58,13 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: currentUser,
       userLoading,
       userError,
-      signIn: (nextToken) => {
-        window.localStorage.setItem('transport.access', nextToken)
-        setToken(nextToken)
+      signIn: (tokens) => {
+        window.localStorage.setItem('transport.access', tokens.access)
+        window.localStorage.setItem('transport.refresh', tokens.refresh)
+        setToken(tokens.access)
       },
-      signOut: () => {
-        window.localStorage.removeItem('transport.access')
-        setToken(null)
+      signOut: async () => {
+        const refresh = window.localStorage.getItem('transport.refresh')
+        try {
+          if (refresh) await revokeSession(refresh)
+        } finally {
+          window.localStorage.removeItem('transport.access')
+          window.localStorage.removeItem('transport.refresh')
+          setToken(null)
+        }
       },
     }),
     [token, currentUser, userLoading, userError],

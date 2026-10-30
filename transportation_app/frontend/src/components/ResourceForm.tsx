@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
 import { api, ApiError } from '../services/api'
 import { VehicleSeatMap } from './booking/VehicleSeatMap'
 import type { ApiRecord, FieldDefinition, ResourceDefinition } from '../types'
+import { useScrollLock } from '../hooks/useScrollLock'
 
 interface Props {
   resource: ResourceDefinition
@@ -96,7 +98,7 @@ function validateVehicleSeatSettings(
 
 function optionLabel(option: ApiRecord, source: string): string {
   let label = ''
-  if (source === 'drivers') {
+  if (source === 'drivers' || source === 'assignment-drivers') {
     const user = option.user
     if (user && typeof user === 'object') {
       const userRecord = user as Record<string, unknown>
@@ -116,6 +118,11 @@ function optionLabel(option: ApiRecord, source: string): string {
         : `${label} · Unavailable${typeof option.unavailable_reason === 'string' ? ` — ${option.unavailable_reason}` : ''}`
   }
   return label
+}
+
+function assignmentAvailabilityUnknown(option: ApiRecord): boolean {
+  return typeof option.unavailable_reason === 'string'
+    && option.unavailable_reason.startsWith('Set a valid trip schedule')
 }
 
 interface RouteStop {
@@ -167,6 +174,8 @@ function disabledSeatNumbersFromJson(value: string): number[] {
 }
 
 export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
+  const { t } = useTranslation()
+  useScrollLock(true)
   const [values, setValues] = useState<Record<string, string | boolean>>(() =>
     Object.fromEntries(resource.fields.map((field) => [field.name, initialFieldValue(record, field)])),
   )
@@ -199,7 +208,11 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
     if (record) availabilityParams.set('trip_id', String(record.id))
     Promise.all(sources.map(async (source) => {
       const isAssignmentSource = source.startsWith('assignment-')
-      const query = isAssignmentSource ? availabilityParams.toString() : ''
+      const sourceParams = new URLSearchParams(availabilityParams)
+      if (source === 'assignment-vehicles' && values.driver) {
+        sourceParams.set('driver', String(values.driver))
+      }
+      const query = isAssignmentSource ? sourceParams.toString() : ''
       const path = `/api/${source}/${query ? `?${query}` : ''}`
       try {
         return { source, records: await api.get<ApiRecord[]>(path), error: null }
@@ -219,14 +232,87 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
         else if (result.error) nextOptionErrors[result.source] = result.error
       }
       setOptions(nextOptions)
+      if (resource.key === 'trips') {
+        setValues((current) => {
+          const next = { ...current }
+          let changed = false
+          const drivers = nextOptions['assignment-drivers'] ?? []
+          const vehicles = nextOptions['assignment-vehicles'] ?? []
+
+          if (typeof next.driver === 'string' && next.driver) {
+            const selectedDriver = drivers.find(
+              (driver) => String(driver.id) === String(next.driver),
+            )
+            if (
+              !selectedDriver ||
+              selectedDriver.status !== 'active' ||
+              selectedDriver.verification_status !== 'approved' ||
+              !selectedDriver.vehicle ||
+              (
+                selectedDriver.available === false
+                && !assignmentAvailabilityUnknown(selectedDriver)
+                && hasCompleteAssignmentWindow
+              )
+            ) {
+              next.driver = ''
+              next.vehicle = ''
+              changed = true
+            }
+          }
+
+          if (typeof next.vehicle === 'string' && next.vehicle) {
+            const selectedVehicle = vehicles.find(
+              (vehicle) => String(vehicle.id) === String(next.vehicle),
+            )
+            if (
+              !selectedVehicle ||
+              selectedVehicle.status !== 'active' ||
+              (
+                selectedVehicle.available === false
+                && !assignmentAvailabilityUnknown(selectedVehicle)
+                && hasCompleteAssignmentWindow
+              )
+            ) {
+              next.vehicle = ''
+              next.driver = ''
+              changed = true
+            }
+          }
+
+          return changed ? next : current
+        })
+      }
       setOptionErrors(nextOptionErrors)
       setError(Object.values(nextOptionErrors)[0] ?? null)
     }).finally(() => { if (active) setLoadingOptions(false) })
     return () => { active = false }
-  }, [resource, record, values.departure_time, values.arrival_time])
+  }, [resource, record, values.departure_time, values.arrival_time, values.vehicle, values.driver, hasCompleteAssignmentWindow])
 
   function updateValue(name: string, value: string | boolean) {
     let next = { ...values, [name]: value }
+    if (resource.key === 'trips' && name === 'vehicle' && typeof value === 'string') {
+      if (value === '' || value === 'none') {
+        next = { ...next, driver: '' }
+      } else {
+        const assignedDriver = (options['assignment-drivers'] ?? []).find(
+          (driver) => String(driver.vehicle ?? '') === String(value),
+        )
+        next = {
+          ...next,
+          driver: assignedDriver ? String(assignedDriver.id) : '',
+        }
+      }
+    }
+    if (resource.key === 'trips' && name === 'driver' && typeof value === 'string') {
+      const selectedDriver = (options['assignment-drivers'] ?? []).find(
+        (driver) => String(driver.id) === String(value),
+      )
+      if (selectedDriver?.vehicle) {
+        next = { ...next, vehicle: String(selectedDriver.vehicle) }
+      } else {
+        next = { ...next, vehicle: '' }
+      }
+    }
     if (resource.key === 'trips' && name === 'route') {
       const stops = routeStopsFor((options.routes ?? []).find((route) => String(route.id) === String(value)))
       const startPosition = stops.findIndex((stop) => String(stop.stationId) === String(next.start_station))
@@ -295,6 +381,10 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    if (loadingOptions) {
+      setError('Assignment options are still loading. Please try again.')
+      return
+    }
     const nextFieldErrors: Record<string, string> = {}
     if (resource.key === 'trips') {
       const selectedRoute = (options.routes ?? []).find((route) => String(route.id) === String(values.route))
@@ -311,6 +401,32 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
         (startPosition < 0 || destinationPosition <= startPosition)
       ) {
         nextFieldErrors.route = 'The route must include the selected stations in travel order.'
+      }
+      const selectedDriver = (options['assignment-drivers'] ?? []).find(
+        (driver) => String(driver.id) === String(values.driver),
+      )
+      const selectedVehicle = (options['assignment-vehicles'] ?? []).find(
+        (vehicle) => String(vehicle.id) === String(values.vehicle),
+      )
+      if (!selectedDriver || selectedDriver.status !== 'active' || selectedDriver.verification_status !== 'approved') {
+        setError('Select an active, approved driver assigned to a vehicle.')
+        return
+      }
+      if (!selectedDriver.vehicle || String(selectedDriver.vehicle) !== String(values.vehicle)) {
+        setError('The selected driver is not assigned to the selected vehicle.')
+        return
+      }
+      if (
+        !selectedVehicle ||
+        selectedVehicle.status !== 'active' ||
+        (
+          hasCompleteAssignmentWindow
+          && selectedVehicle.available === false
+          && !assignmentAvailabilityUnknown(selectedVehicle)
+        )
+      ) {
+        setError('Select an active, available vehicle.')
+        return
       }
       if (Object.keys(nextFieldErrors).length) {
         setFieldErrors(nextFieldErrors)
@@ -379,21 +495,21 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
         } else {
           setError(reason.details.join(' · ') || reason.message)
         }
-      } else setError(reason instanceof Error ? reason.message : 'The record could not be saved.')
+      } else setError(reason instanceof Error ? reason.message : t('The record could not be saved.'))
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="modal-backdrop-custom" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose() }}>
+    <div className="modal-backdrop-custom" role="presentation" onClick={(event) => { if (event.target === event.currentTarget && !saving) onClose() }}>
       <section className="form-modal" role="dialog" aria-modal="true" aria-labelledby="resource-form-title">
         <header className="form-modal-header">
-          <div><span className="eyebrow">{record ? 'UPDATE RECORD' : 'NEW RECORD'}</span><h2 id="resource-form-title">{record ? `Edit ${resource.singular.toLowerCase()}` : `Add ${resource.singular.toLowerCase()}`}</h2></div>
-          <button type="button" className="icon-button" aria-label="Close form" disabled={saving} onClick={onClose}><i className="bi bi-x-lg" /></button>
+          <div><span className="eyebrow">{record ? t('UPDATE RECORD') : t('NEW RECORD')}</span><h2 id="resource-form-title">{t(record ? 'Edit {{resource}}' : 'Add {{resource}}', { resource: t(resource.singular.toLowerCase()) })}</h2></div>
+          <button type="button" className="icon-button" aria-label={t('Close form')} disabled={saving} onClick={onClose}><i className="bi bi-x-lg" /></button>
         </header>
-        {error && <div className="form-alert" role="alert"><i className="bi bi-exclamation-triangle" /><span>{error}</span></div>}
-        {loadingOptions && resource.fields.some((field) => field.source) && <div className="form-hint"><span className="spinner-border spinner-border-sm" role="status" /> Loading related records…</div>}
+        {error && <div className="form-alert" role="alert"><i className="bi bi-exclamation-triangle" /><span>{t(error)}</span></div>}
+        {loadingOptions && resource.fields.some((field) => field.source) && <div className="form-hint"><span className="spinner-border spinner-border-sm" role="status" /> {t('Loading related records…')}</div>}
         <form onSubmit={submit}>
           <div className="form-grid">
             {resource.fields.map((field) => {
@@ -416,10 +532,10 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
               return (
               <label className={`form-field${field.type === 'textarea' || field.type === 'json' ? ' field-wide' : ''}${field.type === 'checkbox' ? ' checkbox-field' : ''}`} key={field.name}>
                 {field.type === 'checkbox' ? (
-                  <span className="checkbox-label"><input checked={Boolean(values[field.name])} type="checkbox" onChange={(event) => updateValue(field.name, event.target.checked)} /><span>{field.label}</span></span>
+                  <span className="checkbox-label"><input checked={Boolean(values[field.name])} type="checkbox" onChange={(event) => updateValue(field.name, event.target.checked)} /><span>{t(field.label)}</span></span>
                 ) : (
                   <>
-                    <span className="field-label">{field.label}{field.required && <b aria-hidden="true"> *</b>}</span>
+                    <span className="field-label">{t(field.label)}{field.required && <b aria-hidden="true"> *</b>}</span>
                     {field.type === 'select' ? (
                       <select
                         required={field.required && !(resource.key === 'trips' && field.source === 'stations')}
@@ -429,6 +545,11 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                           (loadingOptions ||
                             (field.source === 'stations' &&
                               (!(options.stations ?? []).length || Boolean(optionErrors.stations))))
+                          || (
+                            resource.key === 'trips'
+                            && field.name === 'status'
+                            && (record?.status === 'cancelled' || record?.status === 'completed')
+                          )
                         }
                         aria-invalid={Boolean(fieldErrors[field.name])}
                         aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
@@ -436,19 +557,19 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                       >
                         <option value="">
                           {field.source === 'stations' && loadingOptions
-                            ? 'Loading stations…'
+                            ? t('Loading stations…')
                             : field.source === 'stations' && optionErrors.stations
-                              ? 'Stations could not be loaded'
+                              ? t('Stations could not be loaded')
                               : resource.key === 'trips' && field.source === 'stations' && !selectedRoute
-                                ? 'Select a route first'
+                                ? t('Select a route first')
                                 : resource.key === 'trips' && field.source === 'stations' && !routeStops.length
-                                  ? 'No stations configured for this route'
+                                  ? t('No stations configured for this route')
                                   : field.source === 'stations' && !stationOptions.length
-                                    ? 'No valid stations available'
-                                : `Select ${field.label.toLowerCase()}`}
+                                    ? t('No valid stations available')
+                                : t('Select {{field}}', { field: t(field.label.toLowerCase()) })}
                         </option>
-                        {!field.required && field.source && <option value="none">No assignment</option>}
-                        {fieldOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+                        {!field.required && field.source && <option value="none">{t('No assignment')}</option>}
+                        {fieldOptions.map((option) => <option value={option.value} key={option.value}>{t(option.label)}</option>)}
                         {selectedValue && !hasCurrentOption && !field.source && (
                           <option value={selectedValue}>{selectedValue}</option>
                         )}
@@ -457,7 +578,11 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                             value={option.id}
                             key={option.id}
                             disabled={
-                              (field.source === 'assignment-drivers' && option.status !== 'active') ||
+                              (field.source === 'assignment-drivers' && (
+                                option.status !== 'active' ||
+                                option.verification_status !== 'approved' ||
+                                !option.vehicle
+                              )) ||
                               (field.source === 'assignment-vehicles' && option.status !== 'active') ||
                               (hasCompleteAssignmentWindow && option.available === false)
                             }
@@ -478,15 +603,15 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                         onChange={(event) => updateValue(field.name, event.target.value)}
                       />
                     )}
-                    {field.help && <small className="field-help">{field.help}</small>}
+                    {field.help && <small className="field-help">{t(field.help)}</small>}
                     {fieldErrors[field.name] && (
                       <small className="field-error" id={`${field.name}-error`} role="alert">
-                        {fieldErrors[field.name]}
+                        {t(fieldErrors[field.name])}
                       </small>
                     )}
                     {field.source === 'stations' && optionErrors.stations && (
                       <small className="field-error" role="alert">
-                        Station choices unavailable: {optionErrors.stations}
+                        {t('Station choices unavailable')}: {t(optionErrors.stations)}
                       </small>
                     )}
                     {resource.key === 'vehicles' && field.name === 'seat_layout' && (
@@ -497,10 +622,10 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                           disabled={!Number.isInteger(Number(values.capacity)) || Number(values.capacity) < 1}
                           onClick={() => updateValue('seat_layout', JSON.stringify(recommendedSeatLayout(Number(values.capacity)), null, 2))}
                         >
-                          <i className="bi bi-magic" /> Generate recommended layout
+                          <i className="bi bi-magic" /> {t('Generate recommended layout')}
                         </button>
                         <button className="btn btn-sm btn-light" type="button" onClick={() => updateValue('seat_layout', '')}>
-                          Use API default
+                          {t('Use API default')}
                         </button>
                       </div>
                     )}
@@ -511,7 +636,7 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
             })}
             {resource.key === 'vehicles' && (
               <section className="vehicle-layout-preview field-wide" aria-labelledby="vehicle-layout-preview-title">
-                <div><span className="eyebrow">LIVE PREVIEW</span><h3 id="vehicle-layout-preview-title">Passenger seat layout</h3></div>
+                <div><span className="eyebrow">{t('LIVE PREVIEW')}</span><h3 id="vehicle-layout-preview-title">{t('Passenger seat layout')}</h3></div>
                 {seatLayoutPreview ? (
                   <VehicleSeatMap
                     layout={seatLayoutPreview}
@@ -521,15 +646,15 @@ export function ResourceForm({ resource, record, onClose, onSaved }: Props) {
                     onSeatToggle={() => {}}
                   />
                 ) : (
-                  <p className="empty-inline">Enter a valid seat layout above to preview the passenger seat map. Leave it blank to use the API default.</p>
+                  <p className="empty-inline">{t('Enter a valid seat layout above to preview the passenger seat map. Leave it blank to use the API default.')}</p>
                 )}
               </section>
             )}
           </div>
           <footer className="form-modal-footer">
-            <button className="btn btn-light" type="button" disabled={saving} onClick={onClose}>Cancel</button>
+            <button className="btn btn-light" type="button" disabled={saving} onClick={onClose}>{t('Cancel')}</button>
             <button className="btn btn-primary" type="submit" disabled={saving || loadingOptions}>
-              {saving ? <><span className="spinner-border spinner-border-sm" /> Saving…</> : <><i className="bi bi-check2" /> {record ? 'Save changes' : 'Create record'}</>}
+              {saving ? <><span className="spinner-border spinner-border-sm" /> {t('Saving…')}</> : <><i className="bi bi-check2" /> {t(record ? 'Save changes' : 'Create record')}</>}
             </button>
           </footer>
         </form>

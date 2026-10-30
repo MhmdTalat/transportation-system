@@ -1,19 +1,29 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from . import views
 
 
 urlpatterns = [
     path("register/", views.register, name="user-register"),
-    path("token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
+    path("token/", views.LoginTokenObtainPairView.as_view(), name="token-obtain-pair"),
+    path("token/refresh/", views.refresh_token, name="token-refresh"),
+    path("auth/logout/", views.logout, name="auth-logout"),
+    path("auth/email-verification/", views.request_email_verification, name="email-verification-request"),
+    path("auth/verify-email/", views.verify_email, name="email-verification"),
     path("auth/forgot-password/", views.forgot_password, name="forgot-password"),
     path("auth/reset-password/", views.reset_password, name="reset-password"),
     path("me/", views.current_user, name="current-user"),
     path("analytics/dashboard/", views.analytics_dashboard, name="analytics-dashboard"),
     path("users/", views.users, name="user-list"),
     path("users/<int:pk>/", views.user_detail, name="user-detail"),
+    path("operational-settings/", views.operational_settings, name="operational-settings"),
+    path(
+        "operational-settings/<str:key>/",
+        views.operational_setting_detail,
+        name="operational-setting-detail",
+    ),
+    path("audit-logs/", views.audit_logs, name="audit-log-list"),
     path("assignment-drivers/", views.assignment_drivers, name="assignment-drivers"),
     path("assignment-vehicles/", views.assignment_vehicles, name="assignment-vehicles"),
 ]
@@ -34,6 +44,40 @@ resource_urlpatterns = [
     path("vehicles/<int:pk>/", views.vehicle_detail, name="vehicle-detail"),
     path("drivers/", views.drivers, name="driver-list"),
     path("drivers/<int:pk>/", views.driver_detail, name="driver-detail"),
+    path(
+        "drivers/<int:pk>/verification/",
+        views.verify_driver,
+        name="driver-verification",
+    ),
+    path(
+        "driver-documents/",
+        views.driver_documents,
+        name="driver-document-list",
+    ),
+    path(
+        "driver-documents/<int:pk>/",
+        views.driver_document_detail,
+        name="driver-document-detail",
+    ),
+    path(
+        "driver-documents/<int:pk>/review/",
+        views.review_driver_document,
+        name="driver-document-review",
+    ),
+    path(
+        "driver-documents/<int:pk>/download/",
+        views.DownloadDriverDocumentView.as_view(),
+        name="driver-document-download",
+    ),
+    path("private-rides/", views.private_rides, name="private-ride-list"),
+    path("private-rides/<int:pk>/", views.private_ride_detail, name="private-ride-detail"),
+    path(
+        "private-rides/<int:pk>/<str:action>/",
+        views.private_ride_action,
+        name="private-ride-action",
+    ),
+    path("complaints/", views.complaints, name="complaint-list"),
+    path("complaints/<int:pk>/", views.complaint_detail, name="complaint-detail"),
     path("fare-rules/", views.fare_rules, name="farerule-list"),
     path("fare-rules/<int:pk>/", views.fare_rule_detail, name="farerule-detail"),
     path("trips/search/", views.trip_search, name="trip-search"),
@@ -57,6 +101,7 @@ resource_urlpatterns = [
         views.notification_detail,
         name="notification-detail",
     ),
+    path("healthz/", views.healthz, name="healthz"),
 ]
 
 urlpatterns += format_suffix_patterns(resource_urlpatterns)

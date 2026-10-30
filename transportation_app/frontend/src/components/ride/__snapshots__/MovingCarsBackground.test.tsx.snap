@@ -1,0 +1,89 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MovingCarsBackground > matches a snapshot when paused 1`] = `
+<div
+  aria-hidden="true"
+  class="moving-cars-background is-paused"
+  data-testid="moving-cars-background"
+  style="--moving-cars-color: var(--color-accent); --moving-cars-opacity: 0.75; pointer-events: none;"
+>
+  <svg
+    class="moving-cars-roads"
+    preserveAspectRatio="none"
+    viewBox="0 0 800 280"
+  >
+    <path
+      class="moving-cars-grid-road"
+      d="M-20 76H820 M-20 208H820 M178 -20V300 M610 -20V300"
+    />
+    <path
+      class="moving-cars-route"
+      d="M82 218H300V138H535V70H718"
+    />
+    <circle
+      class="moving-cars-destination"
+      cx="718"
+      cy="70"
+      r="9"
+    />
+    <g
+      class="moving-car moving-car-a"
+      style="transform-origin: 0 0;"
+    >
+      <g
+        class="moving-car-shape"
+        transform="translate(-13 -13)"
+      >
+        <circle
+          cx="13"
+          cy="13"
+          r="13"
+        />
+        <path
+          d="M6 10l2-4h10l2 4h1v7H5v-7zm3 0h8l-1-2H10z"
+          fill="var(--color-text-on-accent)"
+          stroke="none"
+        />
+      </g>
+    </g>
+    <g
+      class="moving-car moving-car-b"
+    >
+      <g
+        class="moving-car-shape"
+        transform="translate(-13 -13)"
+      >
+        <circle
+          cx="13"
+          cy="13"
+          r="13"
+        />
+        <path
+          d="M5 10h12v7H5zm1 7v3h3v-3m8 0v3h3v-3M8 7h6l2 3H6z"
+          fill="var(--color-text-on-accent)"
+          stroke="none"
+        />
+      </g>
+    </g>
+    <g
+      class="moving-car moving-car-c"
+    >
+      <g
+        class="moving-car-shape"
+        transform="translate(-13 -13)"
+      >
+        <circle
+          cx="13"
+          cy="13"
+          r="13"
+        />
+        <path
+          d="M6 10l2-4h10l2 4h1v7H5v-7zm3 0h8l-1-2H10z"
+          fill="var(--color-text-on-accent)"
+          stroke="none"
+        />
+      </g>
+    </g>
+  </svg>
+</div>
+`;

@@ -1,0 +1,61 @@
+/**
+ * Skeleton Loader Styles
+ *
+ * Shimmer animation for placeholder content.
+ * Uses linear gradient sweep with subtle easing.
+ */
+
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary-surface, #F3F3F3) 25%,
+    var(--color-surface-elevated, #FFFFFF) 50%,
+    var(--color-secondary-surface, #F3F3F3) 75%
+  );
+  background-size: 200% 100%;
+  background-position: 200% 0;
+  will-change: background-position;
+}
+
+.skeleton--static {
+  background: var(--color-secondary-surface, #F3F3F3);
+  animation: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .skeleton,
+:root:not([data-theme='light']) .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary-surface, #121316) 25%,
+    var(--color-surface-elevated, #232429) 50%,
+    var(--color-secondary-surface, #121316) 75%
+  );
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--color-secondary-surface, #F3F3F3);
+  }
+}

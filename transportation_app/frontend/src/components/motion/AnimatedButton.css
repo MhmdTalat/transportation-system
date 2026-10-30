@@ -1,0 +1,209 @@
+/**
+ * AnimatedButton Styles
+ *
+ * Confident minimalism: flat, no gradients, clear hierarchy.
+ * Uses CSS custom properties from ride-tokens.css
+ */
+
+.animated-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-family-sans, 'Inter', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: color var(--transition-ui, 0.22s), 
+              background var(--transition-ui, 0.22s),
+              border-color var(--transition-ui, 0.22s),
+              opacity var(--transition-ui, 0.22s);
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+/* ========== PRIMARY VARIANT ========== */
+
+.animated-button--primary {
+  min-height: 52px;
+  padding: 0 24px;
+  color: white;
+  background-color: var(--color-accent, #1D9E75);
+  border: 1px solid var(--color-accent, #1D9E75);
+  box-shadow: none;
+}
+
+.animated-button--primary:hover:not(:disabled) {
+  background-color: var(--color-accent-hover, #2DB88D);
+  border-color: var(--color-accent-hover, #2DB88D);
+}
+
+.animated-button--primary:active:not(:disabled) {
+  background-color: var(--color-accent-pressed, #12594F);
+  border-color: var(--color-accent-pressed, #12594F);
+}
+
+.animated-button--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== SECONDARY VARIANT ========== */
+
+.animated-button--secondary {
+  min-height: 52px;
+  padding: 0 24px;
+  color: var(--color-text-secondary, #5E5E5E);
+  background-color: white;
+  border: 1px solid var(--color-border, #E6E6E6);
+  box-shadow: none;
+}
+
+.animated-button--secondary:hover:not(:disabled) {
+  color: var(--color-accent-hover, #2DB88D);
+  border-color: var(--color-accent-hover, #2DB88D);
+  background-color: var(--color-accent-tint, #F3F3F3);
+}
+
+.animated-button--secondary:active:not(:disabled) {
+  color: var(--color-accent-pressed, #12594F);
+  border-color: var(--color-accent-pressed, #12594F);
+}
+
+.animated-button--secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== TERTIARY VARIANT ========== */
+
+.animated-button--tertiary {
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--color-text-secondary, #5E5E5E);
+  background-color: transparent;
+  border: none;
+}
+
+.animated-button--tertiary:hover:not(:disabled) {
+  color: var(--color-accent-hover, #2DB88D);
+  background-color: var(--color-accent-tint, #F3F3F3);
+}
+
+.animated-button--tertiary:active:not(:disabled) {
+  color: var(--color-accent-pressed, #12594F);
+}
+
+.animated-button--tertiary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== SIZE VARIANTS ========== */
+
+.animated-button--sm {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.animated-button--md {
+  min-height: 52px;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.animated-button--lg {
+  min-height: 56px;
+  padding: 0 32px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ========== FULL WIDTH ========== */
+
+.animated-button--full-width {
+  width: 100%;
+}
+
+/* ========== LOADING & SUCCESS STATES ========== */
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.loading-spinner {
+  flex: 0 0 auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-checkmark {
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+/* ========== FOCUS STATE ========== */
+
+.animated-button:focus-visible {
+  outline: 2px solid var(--color-accent, #1D9E75);
+  outline-offset: 2px;
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-button {
+    transition: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .animated-button--secondary,
+:root:not([data-theme='light']) .animated-button--secondary {
+  color: var(--color-text-secondary, #B6B6BA);
+  background-color: var(--color-surface, #1C1D21);
+  border-color: var(--color-border, #303136);
+}
+
+:root[data-theme='dark'] .animated-button--secondary:hover:not(:disabled),
+:root:not([data-theme='light']) .animated-button--secondary:hover:not(:disabled) {
+  color: var(--color-accent-hover, #2DB88D);
+  border-color: var(--color-accent-hover, #2DB88D);
+  background-color: var(--color-accent-tint, #121316);
+}
+
+:root[data-theme='dark'] .animated-button--tertiary,
+:root:not([data-theme='light']) .animated-button--tertiary {
+  color: var(--color-text-secondary, #B6B6BA);
+}
+
+:root[data-theme='dark'] .animated-button--tertiary:hover:not(:disabled),
+:root:not([data-theme='light']) .animated-button--tertiary:hover:not(:disabled) {
+  background-color: var(--color-accent-tint, #121316);
+}

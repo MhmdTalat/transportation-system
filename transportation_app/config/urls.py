@@ -15,12 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 from drf_yasg import openapi
 from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.views import get_schema_view
 from rest_framework.permissions import AllowAny
+
+from core.permissions import IsAdminRole
 
 
 class TaggedSchemaGenerator(OpenAPISchemaGenerator):
@@ -56,8 +59,8 @@ schema_view = get_schema_view(
         default_version="v1",
         description="API documentation for وصلني (Wasalni), the transportation and trip management platform.",
     ),
-    public=True,
-    permission_classes=(AllowAny,),
+    public=settings.DEBUG,
+    permission_classes=(AllowAny,) if settings.DEBUG else (IsAdminRole,),
     generator_class=TaggedSchemaGenerator,
 )
 

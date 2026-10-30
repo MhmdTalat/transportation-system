@@ -67,4 +67,4 @@ class TripService:
 
     @transaction.atomic
     def create_trip(self, validated_data: Mapping[str, Any]) -> Trip:
-        return self._repository.create_trip_with_payment(validated_data)
+        return self._repository.create_trip(validated_data)

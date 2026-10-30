@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7+y$xqq$4sjqhlzvj3tvz2x1-zzyewhb%%$)l_zc27!qy4qq3n'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 # =========================================================
 # ENVIRONMENT
 # =========================================================
@@ -34,20 +30,27 @@ DEBUG = True
 env = environ.Env(
     DEBUG=(bool, False),
 
-    SECRET_KEY=(str, 'replace-me'),
+    SECRET_KEY=(str, ''),
 
-    DB_NAME=(str, 'transportation_app'),
-    DB_USER=(str, 'postgres'),
-    DB_PASSWORD=(str, '1999'),
+    DB_NAME=(str, ''),
+    DB_USER=(str, ''),
+    DB_PASSWORD=(str, ''),
     DB_HOST=(str, '127.0.0.1'),
-    DB_PORT=(str, '1999'),
-
-    REDIS_URL=(str, 'redis://127.0.0.1:6379/1'),
+    DB_PORT=(str, '5432'),
 
     USE_SQLITE=(bool, False),
+    EMAIL_HOST=(str, ''),
+    EMAIL_PORT=(int, 587),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_USE_SSL=(bool, False),
+    EMAIL_HOST_USER=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
 )
 
 env.read_env(BASE_DIR / '.env')
+PRIVATE_MEDIA_ROOT = Path(env('PRIVATE_MEDIA_ROOT', default='private_media'))
+if not PRIVATE_MEDIA_ROOT.is_absolute():
+    PRIVATE_MEDIA_ROOT = BASE_DIR / PRIVATE_MEDIA_ROOT
 
 
 # =========================================================
@@ -57,11 +60,23 @@ env.read_env(BASE_DIR / '.env')
 SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('Set SECRET_KEY in the environment or .env file.')
 
 ALLOWED_HOSTS = env.list(
     'ALLOWED_HOSTS',
     default=['*']
 )
+if not DEBUG and (
+    len(SECRET_KEY) < 50
+    or 'insecure' in SECRET_KEY.casefold()
+    or SECRET_KEY == 'replace-me'
+):
+    raise ImproperlyConfigured(
+        'Production SECRET_KEY must be a unique value of at least 50 characters.'
+    )
+if not DEBUG and (not ALLOWED_HOSTS or '*' in ALLOWED_HOSTS):
+    raise ImproperlyConfigured('Production ALLOWED_HOSTS must list explicit hostnames.')
 
 CSRF_TRUSTED_ORIGINS = env.list(
     'CSRF_TRUSTED_ORIGINS',
@@ -85,6 +100,7 @@ INSTALLED_APPS = [
         'corsheaders',
         'rest_framework',
         'drf_yasg',
+        'rest_framework_simplejwt.token_blacklist',
     
         # Local
         'core',
@@ -94,9 +110,12 @@ AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'core.authentication.VerifiedEmailJWTAuthentication',
     ],
     'DEFAULT_THROTTLE_RATES': {
+        'login': '5/minute',
+        'registration': '5/hour',
+        'email_verification': '5/hour',
         'password_reset_request': '5/hour',
         'password_reset_submit': '10/hour',
     },
@@ -104,14 +123,74 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'CHECK_REVOKE_TOKEN': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
-PASSWORD_RESET_TIMEOUT = env.int('PASSWORD_RESET_TIMEOUT', default=1800)
 FRONTEND_BASE_URL = env('FRONTEND_BASE_URL', default='http://127.0.0.1:5173')
 
-EMAIL_CONFIG = env.email_url('EMAIL_URL', default='consolemail://')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
-EMAIL_BACKEND_PATH = EMAIL_CONFIG.pop('EMAIL_BACKEND')
+EMAIL_CONFIG = env.email_url(
+    'EMAIL_URL',
+    default='smtp://smtp.gmail.com:587',
+)
+EMAIL_BACKEND_PATH = env(
+    'EMAIL_BACKEND',
+    default=EMAIL_CONFIG.pop(
+        'EMAIL_BACKEND',
+        'django.core.mail.backends.smtp.EmailBackend',
+    ),
+)
+_email_host_user = env(
+    'EMAIL_HOST_USER',
+    default=EMAIL_CONFIG.get('EMAIL_HOST_USER', ''),
+)
+_email_host = env(
+    'EMAIL_HOST',
+    default=EMAIL_CONFIG.get(
+        'EMAIL_HOST',
+        'smtp.gmail.com' if _email_host_user else '',
+    ),
+)
+_email_port = env('EMAIL_PORT', default=EMAIL_CONFIG.get('EMAIL_PORT', 587))
+_email_use_tls = env(
+    'EMAIL_USE_TLS',
+    default=EMAIL_CONFIG.get('EMAIL_USE_TLS', True),
+)
+_email_use_ssl = env(
+    'EMAIL_USE_SSL',
+    default=EMAIL_CONFIG.get('EMAIL_USE_SSL', False),
+)
+_email_host_password = env(
+    'EMAIL_HOST_PASSWORD',
+    default=EMAIL_CONFIG.get('EMAIL_HOST_PASSWORD', ''),
+)
+if _email_host_user or _email_host_password:
+    EMAIL_BACKEND_PATH = env(
+        'EMAIL_BACKEND',
+        default='django.core.mail.backends.smtp.EmailBackend',
+    )
+DEFAULT_FROM_EMAIL = env(
+    'DEFAULT_FROM_EMAIL',
+    default=_email_host_user,
+)
+if _email_use_tls and _email_use_ssl:
+    raise ImproperlyConfigured('EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be enabled.')
+if EMAIL_BACKEND_PATH.endswith('.smtp.EmailBackend'):
+    if not _email_host_user or not _email_host_password:
+        raise ImproperlyConfigured(
+            'Set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD to Gmail SMTP credentials.'
+        )
+    if (
+        not DEFAULT_FROM_EMAIL
+        or '@' not in DEFAULT_FROM_EMAIL
+        or DEFAULT_FROM_EMAIL.casefold().endswith('@localhost')
+    ):
+        raise ImproperlyConfigured(
+            'Set DEFAULT_FROM_EMAIL to the authenticated Gmail address '
+            'or an authorized Gmail alias.'
+        )
 EMAIL_OPTIONS = {
     name.removeprefix('EMAIL_').lower(): value
     for name, value in EMAIL_CONFIG.items()
@@ -121,13 +200,35 @@ EMAIL_OPTIONS.update({
     name.lower(): value
     for name, value in EMAIL_CONFIG.get('OPTIONS', {}).items()
 })
+if EMAIL_BACKEND_PATH.endswith('.smtp.EmailBackend'):
+    EMAIL_OPTIONS.update({
+        'host': _email_host or 'smtp.gmail.com',
+        'port': _email_port,
+        'use_tls': _email_use_tls,
+        'use_ssl': _email_use_ssl,
+    })
+    if _email_host_user:
+        EMAIL_OPTIONS['username'] = _email_host_user
+    if _email_host_password:
+        EMAIL_OPTIONS['password'] = _email_host_password
 
 if not DEBUG and not FRONTEND_BASE_URL.startswith('https://'):
     raise ValueError('FRONTEND_BASE_URL must use HTTPS when DEBUG is disabled.')
 
 CACHES = {
-    'default': env.cache_url('CACHE_URL', default='locmemcache://'),
+    'default': env.cache_url(
+        'CACHE_URL',
+        default=env('REDIS_URL', default='locmemcache://'),
+    ),
 }
+
+if (
+    'redis' in CACHES['default']['BACKEND'].lower()
+    or str(CACHES['default'].get('LOCATION', '')).startswith(('redis://', 'rediss://'))
+):
+    CACHES['default']['BACKEND'] = 'django_redis.cache.RedisCache'
+    CACHES['default'].setdefault('OPTIONS', {})
+    CACHES['default']['OPTIONS'].setdefault('IGNORE_EXCEPTIONS', True)
 
 if not DEBUG and CACHES['default']['BACKEND'].endswith('.locmem.LocMemCache'):
     raise ValueError('CACHE_URL must configure a shared cache when DEBUG is disabled.')
@@ -135,9 +236,27 @@ if not DEBUG and CACHES['default']['BACKEND'].endswith('.locmem.LocMemCache'):
 if not DEBUG and EMAIL_BACKEND_PATH.endswith('.console.EmailBackend'):
     raise ValueError('EMAIL_URL must configure email delivery when DEBUG is disabled.')
 
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=not DEBUG)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=not DEBUG)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=not DEBUG)
+SECURE_HSTS_SECONDS = env.int(
+    'SECURE_HSTS_SECONDS',
+    default=31536000 if not DEBUG else 0,
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    'SECURE_HSTS_INCLUDE_SUBDOMAINS',
+    default=not DEBUG,
+)
+SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'same-origin'
+X_FRAME_OPTIONS = 'DENY'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -176,14 +295,25 @@ if env('USE_SQLITE'):
         }
     }
 else:
+    database_values = {
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+    }
+    missing_database_values = [
+        key for key, value in database_values.items() if not value
+    ]
+    if missing_database_values:
+        raise ImproperlyConfigured(
+            'Set PostgreSQL environment values: '
+            + ', '.join(f'DB_{key}' for key in missing_database_values)
+        )
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('DB_NAME'),
-            'USER': env('DB_USER'),
-            'PASSWORD': env('DB_PASSWORD'),
-            'HOST': env('DB_HOST'),
-            'PORT': env('DB_PORT'),
+            **database_values,
         }
     }
 
@@ -210,9 +340,27 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ar'
 
-TIME_ZONE = 'UTC'
+LANGUAGES = [
+    ('ar', 'Arabic'),
+    ('en', 'English'),
+]
+
+TIME_ZONE = 'Africa/Cairo'
+
+BOOKING_CANCELLATION_CUTOFF_HOURS = env.int(
+    'BOOKING_CANCELLATION_CUTOFF_HOURS',
+    default=2,
+)
+MAX_ACTIVE_UPCOMING_BOOKINGS = env.int(
+    'MAX_ACTIVE_UPCOMING_BOOKINGS',
+    default=5,
+)
+DRIVER_PASSENGER_PHONE_WINDOW_HOURS = env.int(
+    'DRIVER_PASSENGER_PHONE_WINDOW_HOURS',
+    default=2,
+)
 
 USE_I18N = True
 

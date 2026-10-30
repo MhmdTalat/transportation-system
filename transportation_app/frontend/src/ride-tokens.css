@@ -1,0 +1,352 @@
+:root {
+  --brand: #176B63;
+  --ink: #0B0B0C;
+  --body: #5E5E5E;
+  --mute: #AFAFAF;
+  --surface: #FFFFFF;
+  --surface-soft: #F3F3F3;
+  --border: #E6E6E6;
+  --success: #1FA971;
+  --warning: #F5A524;
+  --error: #E5484D;
+
+  --color-accent: var(--brand);
+  --color-accent-hover: var(--brand);
+  --color-accent-pressed: #12594F;
+  --color-accent-tint: var(--surface-soft);
+  --color-radar-surface: #121316;
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--body);
+  --color-text-muted: var(--mute);
+  --color-text-on-accent: #FFFFFF;
+  --color-background: var(--surface-soft);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-soft);
+  --color-border: var(--border);
+  --color-divider: var(--border);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--error);
+
+  --radius-input: 12px;
+  --radius-card: 16px;
+  --radius-button: 999px;
+  --radius-chip: 999px;
+  --radius-bottom-sheet: 24px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --font-family-sans: Inter, Cairo, 'IBM Plex Sans Arabic', 'Segoe UI', Arial, sans-serif;
+  --font-size-display: 32px;
+  --font-size-heading: 22px;
+  --font-size-label: 14px;
+  --font-size-body: 16px;
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-regular: 400;
+
+  --shadow-sheet: 0 -12px 32px rgb(11 11 12 / 10%);
+  --shadow-search: 0 4px 16px rgb(11 11 12 / 12%);
+  --shadow-card: none;
+  --shadow-elevated: var(--shadow-search);
+  --shadow-bar: var(--shadow-sheet);
+}
+
+:root[data-theme='dark'],
+:root:not([data-theme='light']) {
+  --ink: #F2F2F3;
+  --body: #B6B6BA;
+  --mute: #85858A;
+  --surface: #1C1D21;
+  --surface-soft: #121316;
+  --border: #303136;
+  --color-background: var(--surface-soft);
+  --color-surface: var(--surface);
+  --color-surface-elevated: #232429;
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--body);
+  --color-text-muted: var(--mute);
+  --color-border: var(--border);
+  --color-divider: var(--border);
+  --shadow-sheet: 0 -12px 32px rgb(0 0 0 / 28%);
+  --shadow-search: 0 4px 16px rgb(0 0 0 / 32%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ease-out: linear;
+    --duration-fast: 0ms;
+    --duration-ui: 0ms;
+    --duration-enter: 0ms;
+  }
+}
+
+.ride-button-primary,
+.passenger-page .btn-primary,
+.driver-page .btn-primary,
+.ride-bottom-sheet .btn-primary {
+  min-height: 52px;
+  border-radius: 999px;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: none;
+  transform: scale(1);
+}
+
+.ride-button-primary:active,
+.passenger-page .btn-primary:active,
+.driver-page .btn-primary:active,
+.ride-bottom-sheet .btn-primary:active {
+  transform: scale(.97);
+}
+
+.passenger-page .btn-light,
+.passenger-page .btn-outline-primary,
+.ride-button-secondary {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.passenger-home-map {
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+
+.passenger-home-sheet {
+  border: 0;
+  border-radius: 24px 24px 16px 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet);
+  backdrop-filter: none;
+}
+
+.passenger-home-sheet .panel,
+.passenger-page .panel {
+  border-color: transparent;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.upcoming-trip-card {
+  background: var(--surface) !important;
+  border-radius: 20px;
+}
+
+.upcoming-trip-facts strong,
+.upcoming-trip-card h2,
+.recent-booking > strong,
+.passenger-page h1,
+.passenger-page h2 {
+  color: var(--color-text-primary);
+}
+
+.where-to .ride-address-input,
+.passenger-page .form-field input,
+.passenger-page .form-field select {
+  border-radius: 12px;
+}
+
+.ride-status-chip {
+  border-radius: 999px;
+}
+
+.map-route-line,
+.ride-route-line {
+  stroke: var(--brand);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:root[data-theme='dark'] .passenger-page .panel,
+:root:not([data-theme='light']) .passenger-page .panel {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+:root[data-theme='dark'] .passenger-home-sheet,
+:root:not([data-theme='light']) .passenger-home-sheet {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.passenger-page .trip-search-form,
+.passenger-page .passenger-trip-card,
+.passenger-page .seat-panel,
+.passenger-page .booking-confirmation,
+.passenger-page .booking-selection-summary {
+  border: 0;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.passenger-page .trip-search-form {
+  gap: 12px;
+  padding: 20px;
+}
+
+.passenger-page .trip-search-form select,
+.passenger-page .trip-search-form input {
+  min-height: 52px;
+  border-radius: 12px;
+}
+
+.passenger-page .trip-search-swap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.passenger-page .date-shortcut {
+  min-height: 48px;
+  border-radius: 999px;
+}
+
+.passenger-page .passenger-trip-card {
+  border-radius: 20px;
+}
+
+.passenger-page .passenger-trip-card.trip-selected {
+  border: 1px solid var(--brand);
+  background: var(--surface);
+}
+
+.passenger-page .trip-route-stop i,
+.passenger-page .trip-route-times time:first-child {
+  color: var(--brand);
+}
+
+.passenger-page .trip-card-meta strong,
+.passenger-page .booking-selection-summary strong {
+  font-family: var(--font-family-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.passenger-page .selected-seat-chip,
+.passenger-page .seat-legend-dot.chosen {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.passenger-page .occupancy-track span {
+  border-radius: 999px;
+  background: var(--brand);
+}
+
+.passenger-page .booking-selection-summary {
+  position: sticky;
+  inset-block-end: 16px;
+  border: 1px solid var(--border);
+}
+
+.passenger-page .form-modal-footer .btn,
+.passenger-page .booking-selection-summary .btn,
+.passenger-page .trip-search-form .btn,
+.passenger-page .passenger-trip-card > .btn {
+  min-height: 52px;
+  border-radius: 999px;
+}
+
+.passenger-page .modal-backdrop-custom {
+  backdrop-filter: blur(4px);
+}
+
+:root[data-theme='dark'] .passenger-page .trip-search-form,
+:root[data-theme='dark'] .passenger-page .passenger-trip-card,
+:root[data-theme='dark'] .passenger-page .seat-panel,
+:root[data-theme='dark'] .passenger-page .booking-confirmation,
+:root[data-theme='dark'] .passenger-page .booking-selection-summary,
+:root:not([data-theme='light']) .passenger-page .trip-search-form,
+:root:not([data-theme='light']) .passenger-page .passenger-trip-card,
+:root:not([data-theme='light']) .passenger-page .seat-panel,
+:root:not([data-theme='light']) .passenger-page .booking-confirmation,
+:root:not([data-theme='light']) .passenger-page .booking-selection-summary {
+  border: 1px solid var(--border);
+}
+
+.driver-page .driver-online-toggle,
+.driver-page .driver-current-trip,
+.driver-page .driver-assignment,
+.driver-page .passenger-manifest {
+  border: 0;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.driver-page .driver-online-toggle {
+  min-height: 64px;
+  box-shadow: none;
+}
+
+.driver-page .driver-online-switch {
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.driver-page .driver-online-switch[aria-pressed='true'],
+.driver-page .driver-online-switch[aria-checked='true'] {
+  background: var(--success);
+}
+
+.driver-page .driver-trip-facts {
+  border-top-color: var(--border);
+}
+
+.driver-page .driver-current-trip h2,
+.driver-page .driver-trip-facts strong,
+.driver-page .driver-assignment h3 {
+  color: var(--color-text-primary);
+}
+
+.driver-page .driver-trip-facts strong,
+.driver-page .driver-assignment p {
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-page .driver-trip-actions .btn,
+.driver-page .driver-assignment > .btn {
+  min-height: 52px;
+  border-radius: 999px;
+}
+
+.driver-page .ride-status-chip > span,
+.driver-page .booking-state {
+  border-radius: 999px;
+}
+
+.manifest-list {
+  border-radius: 16px;
+}
+
+:root[data-theme='dark'] .driver-page .driver-online-toggle,
+:root[data-theme='dark'] .driver-page .driver-current-trip,
+:root[data-theme='dark'] .driver-page .driver-assignment,
+:root[data-theme='dark'] .driver-page .passenger-manifest,
+:root:not([data-theme='light']) .driver-page .driver-online-toggle,
+:root:not([data-theme='light']) .driver-page .driver-current-trip,
+:root:not([data-theme='light']) .driver-page .driver-assignment,
+:root:not([data-theme='light']) .driver-page .passenger-manifest {
+  border: 1px solid var(--border);
+}

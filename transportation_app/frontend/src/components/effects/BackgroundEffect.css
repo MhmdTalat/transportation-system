@@ -1,0 +1,88 @@
+/**
+ * BackgroundEffect Container Styles
+ *
+ * All effect animations sit behind content (z-index: 0).
+ * Pointer events: none so they don't intercept clicks.
+ * Hidden from screen readers (aria-hidden).
+ */
+
+.background-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  will-change: opacity;
+}
+
+/* ========== EFFECT VARIANTS ========== */
+
+.background-effect--radarSweep {
+  /* Radar sweep for search/dispatch states */
+}
+
+.background-effect--skyline {
+  /* Skyline layers for home screen ambient */
+}
+
+.background-effect--speedLines {
+  /* Speed lines for in-trip active state */
+}
+
+.background-effect--contours {
+  /* Rotating contours for login/onboarding */
+}
+
+.background-effect--dotWave {
+  /* Dot wave grid for loading states */
+}
+
+.background-effect--rain {
+  /* Falling rain drops for weather/surge */
+}
+
+.background-effect--glow {
+  /* Soft glow behind floating layers */
+}
+
+.background-effect--glass {
+  /* Frosted glass overlay for cards */
+}
+
+/* ========== STATE CLASSES ========== */
+
+.background-effect.is-paused {
+  /* Animation paused (screen hidden or user preference) */
+  animation-play-state: paused !important;
+  opacity: 0.5; /* Dim static frame slightly */
+}
+
+.background-effect.is-static {
+  /* Reduce motion: show static frame, no animation */
+  animation: none !important;
+  opacity: 0.3; /* Even dimmer for accessibility */
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+.background-effect[aria-hidden='true'] {
+  /* Hidden from screen readers */
+  /* Ensures semantic meaning is in DOM, not animation */
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+  .background-effect {
+    animation: none !important;
+    opacity: 0.15 !important;
+  }
+}
+
+/* ========== DARK MODE ========== */
+
+:root[data-theme='dark'] .background-effect,
+:root:not([data-theme='light']) .background-effect {
+  /* Effect components handle their own color theming */
+  /* See individual effect CSS files */
+}
